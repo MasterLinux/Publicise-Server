@@ -1,9 +1,16 @@
 library net.apetheory.publicise.server;
 
 import 'package:redstone/server.dart' as api;
+import 'package:args/args.dart';
 
-main() {
-  var server = new Server("localhost", 1337);
+main(List<String> args) {
+  var parser = new ArgParser();
+  parser.addOption('address', abbr: 'a', defaultsTo: 'localhost');
+  parser.addOption('port', abbr: 'p', defaultsTo: 1337);
+
+  var results = parser.parse(args);
+
+  var server = new Server(results['address'], int.parse(results['port']));
   server.start();
 }
 
