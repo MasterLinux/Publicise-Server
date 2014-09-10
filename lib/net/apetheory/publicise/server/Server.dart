@@ -2,6 +2,13 @@ library net.apetheory.publicise.server;
 
 import 'package:redstone/server.dart' as api;
 import 'package:args/args.dart';
+import 'dart:convert';
+
+part 'model/resource.dart';
+part 'model/document.dart';
+part 'model/meta.dart';
+part 'resource/documents.dart';
+part 'data/resource_set.dart';
 
 
 main(List<String> args) {
