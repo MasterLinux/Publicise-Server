@@ -9,6 +9,7 @@ part 'model/document.dart';
 part 'model/meta.dart';
 part 'resource/documents.dart';
 part 'data/resource_set.dart';
+part 'data/resource_builder.dart';
 
 
 main(List<String> args) {
