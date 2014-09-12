@@ -51,5 +51,5 @@ class Documents {
   String updateDocument(@api.Body(api.JSON) Map user, String id) => "update document with id: $id";
 
   @api.Route("/:id", methods: const [api.DELETE])
-  String deleteDocument() => "delete document with id: $id";
+  String deleteDocument(String id) => "delete document with id: $id";
 }
