@@ -4,6 +4,7 @@ import com.mongodb.*;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.listener.OnTransactionErrorListener;
+import net.apetheory.publicise.server.data.database.meta.DBObjectConverter;
 import net.apetheory.publicise.server.resource.DocumentResource;
 import org.bson.types.ObjectId;
 
@@ -22,9 +23,7 @@ public class DocumentsDAO {
      */
     public static ResourceSet insertInto(Database database, DocumentResource document, OnTransactionErrorListener errorListener) {
         return database.connect(Database.Collection.Documents, (database1, collection) -> {
-            BasicDBObject dbObj = new BasicDBObject() //TODO implement a generic version based on annotations and reflection
-                    .append("title", document.getTitle())
-                    .append("subtitle", document.getSubtitle());
+            BasicDBObject dbObj = DBObjectConverter.toDBObject(document);
 
             try {
                 collection.insert(dbObj, WriteConcern.SAFE);
@@ -56,11 +55,7 @@ public class DocumentsDAO {
                 DBObject result = collection.findOne(new BasicDBObject("_id", new BasicDBObject("$eq", id)));
 
                 if(result != null) {
-                    DocumentResource resource = new DocumentResource();
-
-                    resource.setId(documentId);
-                    resource.setTitle((String) result.get("title"));
-                    resource.setSubtitle((String) result.get("subtitle"));
+                    DocumentResource resource = DBObjectConverter.toResource(DocumentResource.class, result);
 
                     return new ResourceSet
                             .Builder<DocumentResource>(collection.count())
@@ -86,12 +81,7 @@ public class DocumentsDAO {
 
             while(resultSet.hasNext()) {
                 obj = resultSet.next();
-                resource = new DocumentResource();
-
-                resource.setId(obj.get("_id").toString());
-                resource.setTitle(obj.get("title").toString());
-                resource.setSubtitle(obj.get("subtitle").toString());
-
+                resource = DBObjectConverter.toResource(DocumentResource.class, obj);
                 builder.addResource(resource);
             }
 

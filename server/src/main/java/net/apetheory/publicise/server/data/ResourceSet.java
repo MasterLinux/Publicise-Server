@@ -31,8 +31,8 @@ public class ResourceSet<TResource extends BaseResource> {
     }
 
     /**
-     * Serializes this resource set to JSON
-     * @return This resource set as JSON
+     * Serializes this resource set to a JSON formatted string
+     * @return This resource set as JSON formatted string
      */
     public String toJson() {
         return new Gson().toJson(this);
