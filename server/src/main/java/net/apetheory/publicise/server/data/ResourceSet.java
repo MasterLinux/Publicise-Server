@@ -1,5 +1,6 @@
 package net.apetheory.publicise.server.data;
 
+import com.google.gson.Gson;
 import net.apetheory.publicise.server.resource.BaseResource;
 import net.apetheory.publicise.server.resource.MetaModel;
 
@@ -27,6 +28,14 @@ public class ResourceSet<TResource extends BaseResource> {
 
     public MetaModel getMeta() {
         return meta;
+    }
+
+    /**
+     * Serializes this resource set to JSON
+     * @return This resource set as JSON
+     */
+    public String toJson() {
+        return new Gson().toJson(this);
     }
 
     /**

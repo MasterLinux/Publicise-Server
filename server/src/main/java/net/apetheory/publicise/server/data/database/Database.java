@@ -4,6 +4,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import net.apetheory.publicise.server.Config;
+import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.listener.OnConnectionErrorListener;
 import net.apetheory.publicise.server.data.database.listener.OnConnectionEstablishedListener;
 
@@ -17,6 +18,7 @@ public class Database {
     private final String host;
     private final int port;
     private MongoClient client;
+    private ResourceSet result;
 
     /**
      * Name of the database
@@ -58,9 +60,8 @@ public class Database {
             if(establishedListener != null) {
                 DB database = client.getDB(NAME);
                 DBCollection coll = database.getCollection(collection.getName());
-                if(establishedListener.onEstablished(database, coll)) {
-                    disconnect();
-                }
+
+                result = establishedListener.onEstablished(database, coll);
             }
 
         } catch (UnknownHostException e) {
@@ -77,7 +78,7 @@ public class Database {
     /**
      * Closes the database connection
      */
-    public void disconnect() {
+    public Database disconnect() {
         if(client != null) {
             client.close();
             client = null;
@@ -85,6 +86,12 @@ public class Database {
         } else {
             //TODO LOG lifecycle database connection is already closed
         }
+
+        return this;
+    }
+
+    public ResourceSet getResult() {
+        return result;
     }
 
     /**
