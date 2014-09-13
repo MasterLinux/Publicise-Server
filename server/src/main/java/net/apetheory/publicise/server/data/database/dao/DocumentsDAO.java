@@ -4,7 +4,7 @@ import com.mongodb.*;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.listener.OnTransactionErrorListener;
-import net.apetheory.publicise.server.data.database.meta.DBObjectConverter;
+import net.apetheory.publicise.server.data.database.DBObjectConverter;
 import net.apetheory.publicise.server.resource.DocumentResource;
 import org.bson.types.ObjectId;
 

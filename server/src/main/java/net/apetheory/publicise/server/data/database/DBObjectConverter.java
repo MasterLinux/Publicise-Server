@@ -1,7 +1,9 @@
-package net.apetheory.publicise.server.data.database.meta;
+package net.apetheory.publicise.server.data.database;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import net.apetheory.publicise.server.data.database.meta.DatabaseField;
+import net.apetheory.publicise.server.data.database.meta.DatabaseId;
 import net.apetheory.publicise.server.resource.BaseResource;
 import org.bson.types.ObjectId;
 
