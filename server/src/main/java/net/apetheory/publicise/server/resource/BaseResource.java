@@ -1,10 +1,15 @@
 package net.apetheory.publicise.server.resource;
 
+import net.apetheory.publicise.server.data.database.meta.DatabaseId;
+
 /**
  * Created by Christoph on 13.09.2014.
  */
 public abstract class BaseResource {
+
+    @DatabaseId
     private String id;
+
     private String resourceUri;
 
     public String getId() {
