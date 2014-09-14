@@ -1,6 +1,6 @@
 package net.apetheory.publicise.server.api;
 
-import com.google.gson.Gson;
+import flexjson.JSONDeserializer;
 import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
@@ -38,7 +38,8 @@ public class DocumentsEndPoint {
     @Consumes(MediaType.APPLICATION_JSON)
     public String createDocument(String body) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
-        DocumentResource resource = new Gson().fromJson(body, DocumentResource.class);
+        DocumentResource resource = new JSONDeserializer<DocumentResource>()
+                    .deserialize(body, DocumentResource.class);
 
         ResourceSet result = DocumentsDAO.insertInto(db, resource, () -> {
             //TODO handle error

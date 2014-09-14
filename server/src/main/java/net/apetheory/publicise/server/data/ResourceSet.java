@@ -1,7 +1,6 @@
 package net.apetheory.publicise.server.data;
 
-import com.google.gson.GsonBuilder;
-import net.apetheory.publicise.server.data.converter.FieldsParameterExclusionStrategy;
+import net.apetheory.publicise.server.data.converter.JsonConverter;
 import net.apetheory.publicise.server.resource.BaseResource;
 import net.apetheory.publicise.server.resource.MetaModel;
 
@@ -40,10 +39,7 @@ public class ResourceSet<TResource extends BaseResource> {
     }
 
     public String toJson(String fields) {
-        return new GsonBuilder()
-                .setExclusionStrategies(new FieldsParameterExclusionStrategy(fields))
-                .serializeNulls()
-                .create().toJson(this);
+        return new JsonConverter().toJSON(this, fields);
     }
 
     /**

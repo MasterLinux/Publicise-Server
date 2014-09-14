@@ -5,7 +5,7 @@ import net.apetheory.publicise.server.data.database.meta.DatabaseId;
 /**
  * Created by Christoph on 13.09.2014.
  */
-public abstract class BaseResource {
+public class BaseResource {
 
     @DatabaseId
     private String id;

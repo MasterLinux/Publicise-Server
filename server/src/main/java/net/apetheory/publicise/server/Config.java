@@ -1,7 +1,7 @@
 package net.apetheory.publicise.server;
 
-import com.google.gson.Gson;
-import net.apetheory.publicise.server.model.DatabaseConfigModel;
+import flexjson.JSONDeserializer;
+import net.apetheory.publicise.server.model.ConfigModel;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -13,13 +13,19 @@ import java.io.IOException;
  */
 public class Config {
     private static Config instance;
-    private DatabaseConfigModel database;
+    private final ConfigModel config;
 
     private static final String DEFAULT_CONFIG_FILE_PATH = "./config.json";
     private static final int DATABASE_DEFAULT_PORT = 27017;
     private static final String DATABASE_DEFAULT_HOST = "localhost";
 
-    private Config() {}
+    private Config() {
+        config = new ConfigModel();
+    }
+
+    public Config(ConfigModel config) {
+        this.config = config;
+    }
 
     /**
      * Loads the config as singleton instance
@@ -36,7 +42,8 @@ public class Config {
             if(json != null) {
                 //TODO log custom config is loaded
                 //TODO handle exceptions
-                instance = new Gson().fromJson(json, Config.class);
+                ConfigModel config = new JSONDeserializer<ConfigModel>().deserialize(json, ConfigModel.class);
+                instance = new Config(config);
             } else {
                 //TODO log default config is loaded
                 instance = new Config();
@@ -51,7 +58,7 @@ public class Config {
      * @return The port
      */
     public int getDatabasePort() {
-        return database != null ? database.getPort() : DATABASE_DEFAULT_PORT;
+        return config.getDatabase() != null ? config.getDatabase().getPort() : DATABASE_DEFAULT_PORT;
     }
 
     /**
@@ -59,7 +66,7 @@ public class Config {
      * @return the host
      */
     public String getDatabaseHost() {
-        return database != null ? database.getHost() : DATABASE_DEFAULT_HOST;
+        return config.getDatabase() != null ? config.getDatabase().getHost() : DATABASE_DEFAULT_HOST;
     }
 
     /**
