@@ -73,13 +73,13 @@ public class DocumentsEndPoint {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getDocuments() {
+    public String getDocuments(@QueryParam("fields") String fields) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
 
         ResourceSet result = DocumentsDAO.getFrom(db, () -> {
             //TODO handle error
         });
 
-        return result != null ? result.toJson() : null;
+        return result != null ? result.toJson(fields) : null;
     }
 }
