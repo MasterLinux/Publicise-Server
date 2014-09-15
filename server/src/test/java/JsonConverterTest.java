@@ -18,7 +18,7 @@ public class JsonConverterTest {
     @Test
     public void testConverterShouldConvert() {
         String expectedResponse = "{\"meta\":{\"filteredCount\":1,\"limit\":10,\"next\":null,\"offset\":0,\"prev\":null,\"totalCount\":10},\"objects\":[{\"id\":\"id\",\"nested\":{\"doubleValue\":1.1,\"integerValue\":2,\"nested\":{\"doubleValue\":3.3,\"integerValue\":4,\"nested\":null}},\"resourceUri\":null,\"stringValue\":\"string_value\"}]}";
-        String actualResponse = new JsonConverter().toJSON(getResourceSet(), null);
+        String actualResponse = JsonConverter.toJSON(getResourceSet(), null);
 
         Assert.assertEquals("message", expectedResponse, actualResponse);
     }
@@ -26,7 +26,7 @@ public class JsonConverterTest {
     @Test
     public void testConverterShouldFilter() {
         String expectedResponse = "{\"meta\":{\"filteredCount\":1,\"limit\":10,\"next\":null,\"offset\":0,\"prev\":null,\"totalCount\":10},\"objects\":[{\"nested\":{\"doubleValue\":1.1,\"integerValue\":2},\"stringValue\":\"string_value\"}]}";
-        String actualResponse = new JsonConverter().toJSON(getResourceSet(), "nested.doubleValue,stringValue,nested.integerValue");
+        String actualResponse = JsonConverter.toJSON(getResourceSet(), "nested.doubleValue,stringValue,nested.integerValue");
 
         Assert.assertEquals("message", expectedResponse, actualResponse);
     }

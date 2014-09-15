@@ -39,7 +39,7 @@ public class ResourceSet<TResource extends BaseResource> {
     }
 
     public String toJson(String fields) {
-        return new JsonConverter().toJSON(this, fields);
+        return JsonConverter.toJSON(this, fields);
     }
 
     /**

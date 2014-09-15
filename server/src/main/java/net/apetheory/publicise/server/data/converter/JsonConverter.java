@@ -2,9 +2,10 @@ package net.apetheory.publicise.server.data.converter;
 
 import flexjson.JSONSerializer;
 import net.apetheory.publicise.server.data.ResourceSet;
+import net.apetheory.publicise.server.data.StringUtils;
 
 /**
- * Created by Christoph on 14.09.2014.
+ * Helper class to convert a ResourceSet to it JSON representation
  */
 public class JsonConverter {
 
@@ -15,10 +16,10 @@ public class JsonConverter {
      * @param fieldsQuery Value of the fields query parameter
      * @return A JSON formatted String representing the ResourceSet
      */
-    public String toJSON(ResourceSet value, String fieldsQuery) {
+    public static String toJSON(ResourceSet value, String fieldsQuery) {
         JSONSerializer serializer = new JSONSerializer();
 
-        if(fieldsQuery != null && fieldsQuery.length() > 0) {
+        if(!StringUtils.isEmpty(fieldsQuery)) {
             String[] fields = fieldsQuery.split(",");
 
             for (String field : fields) {
