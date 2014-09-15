@@ -1,6 +1,6 @@
 package net.apetheory.publicise.server.data;
 
-import com.google.gson.Gson;
+import net.apetheory.publicise.server.data.converter.JsonConverter;
 import net.apetheory.publicise.server.resource.BaseResource;
 import net.apetheory.publicise.server.resource.MetaModel;
 
@@ -35,7 +35,11 @@ public class ResourceSet<TResource extends BaseResource> {
      * @return This resource set as JSON formatted string
      */
     public String toJson() {
-        return new Gson().toJson(this);
+        return toJson(null);
+    }
+
+    public String toJson(String fields) {
+        return JsonConverter.toJSON(this, fields);
     }
 
     /**
