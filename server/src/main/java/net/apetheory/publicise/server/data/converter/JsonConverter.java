@@ -8,17 +8,29 @@ import net.apetheory.publicise.server.data.ResourceSet;
  */
 public class JsonConverter {
 
-    public String toJSON(ResourceSet value, String f) {
-        //TODO handle value == null
+    /**
+     * Converts a ResourceSet into its JSON representation
+     *
+     * @param value The ResourceSet to convert
+     * @param fieldsQuery Value of the fields query parameter
+     * @return A JSON formatted String representing the ResourceSet
+     */
+    public String toJSON(ResourceSet value, String fieldsQuery) {
         JSONSerializer serializer = new JSONSerializer();
-        String[] fields = f.split(",");
 
-        for(String field : fields) {
-            serializer.include("objects." + field);
+        if(fieldsQuery != null && fieldsQuery.length() > 0) {
+            String[] fields = fieldsQuery.split(",");
+
+            for (String field : fields) {
+                serializer.include("objects." + field);
+            }
+
+            serializer.exclude("objects.*");
+        } else {
+            serializer.include("objects");
         }
 
         return serializer
-                .exclude("objects.*")
                 .exclude("*.class")
                 .prettyPrint(true)
                 .serialize(value);
