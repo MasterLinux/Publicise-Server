@@ -32,7 +32,6 @@ public class JsonConverter {
 
         return serializer
                 .exclude("*.class")
-                .prettyPrint(true)
                 .serialize(value);
     }
 
