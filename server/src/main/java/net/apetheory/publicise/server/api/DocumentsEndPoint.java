@@ -8,7 +8,9 @@ import net.apetheory.publicise.server.data.database.dao.DocumentsDAO;
 import net.apetheory.publicise.server.resource.DocumentResource;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 @Path("/documents")
 public class DocumentsEndPoint {
@@ -74,10 +76,15 @@ public class DocumentsEndPoint {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getDocuments(@QueryParam("fields") String fields) {
+    public String getDocuments(
+            @QueryParam("limit") @DefaultValue("20") int limit,
+            @QueryParam("offset") int offset,
+            @QueryParam("fields") String fields,
+            @Context UriInfo uriInfo
+    ) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
 
-        ResourceSet result = DocumentsDAO.getFrom(db, () -> {
+        ResourceSet result = DocumentsDAO.getFrom(db, uriInfo, offset, limit, () -> {
             //TODO handle error
         });
 

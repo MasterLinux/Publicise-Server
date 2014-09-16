@@ -8,6 +8,8 @@ import net.apetheory.publicise.server.data.database.DBObjectConverter;
 import net.apetheory.publicise.server.resource.DocumentResource;
 import org.bson.types.ObjectId;
 
+import javax.ws.rs.core.UriInfo;
+
 /**
  * Data access object which is used to insert,
  * update, delete and get documents
@@ -71,18 +73,29 @@ public class DocumentsDAO {
         }).disconnect().getResult();
     }
 
-    public static ResourceSet getFrom(Database database, OnTransactionErrorListener errorListener) {
+    public static ResourceSet getFrom(Database database, UriInfo uriInfo, int offset, int limit, OnTransactionErrorListener errorListener) {
         return database.connect(Database.Collection.Documents, (database1, collection) -> {
-            DBCursor resultSet = collection.find();
-
-            ResourceSet.Builder<DocumentResource> builder = new ResourceSet.Builder<>(collection.count());
             DocumentResource resource;
+            DBCursor resultSet;
             DBObject obj;
 
-            while(resultSet.hasNext()) {
-                obj = resultSet.next();
-                resource = DBObjectConverter.toResource(DocumentResource.class, obj);
-                builder.addResource(resource);
+            long count = collection.count();
+            int startIdx = limit * offset;
+
+            ResourceSet.Builder<DocumentResource> builder =
+                    new ResourceSet.Builder<DocumentResource>(count)
+                        .setUriInfo(uriInfo)
+                        .setOffset(offset)
+                        .setLimit(limit);
+
+            if(startIdx < count) {
+                resultSet = collection.find().skip(startIdx).limit(limit);
+
+                while (resultSet.hasNext()) {
+                    obj = resultSet.next();
+                    resource = DBObjectConverter.toResource(DocumentResource.class, obj);
+                    builder.addResource(resource);
+                }
             }
 
             return builder.build();
