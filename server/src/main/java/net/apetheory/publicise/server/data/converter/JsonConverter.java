@@ -2,7 +2,7 @@ package net.apetheory.publicise.server.data.converter;
 
 import flexjson.JSONSerializer;
 import net.apetheory.publicise.server.data.ResourceSet;
-import net.apetheory.publicise.server.data.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Helper class to convert a ResourceSet to it JSON representation
@@ -13,15 +13,13 @@ public class JsonConverter {
      * Converts a ResourceSet into its JSON representation
      *
      * @param value The ResourceSet to convert
-     * @param fieldsQuery Value of the fields query parameter
+     * @param fields Collection of required fields to return in response
      * @return A JSON formatted String representing the ResourceSet
      */
-    public static String toJSON(ResourceSet value, String fieldsQuery) {
+    public static String toJSON(ResourceSet value, @NotNull String[] fields) {
         JSONSerializer serializer = new JSONSerializer();
 
-        if(!StringUtils.isEmpty(fieldsQuery)) {
-            String[] fields = fieldsQuery.split(",");
-
+        if(fields.length > 0) {
             for (String field : fields) {
                 serializer.include("objects." + field);
             }

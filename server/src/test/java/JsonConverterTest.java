@@ -26,7 +26,11 @@ public class JsonConverterTest {
     @Test
     public void testConverterShouldFilter() {
         String expectedResponse = "{\"meta\":{\"filteredCount\":1,\"limit\":10,\"next\":null,\"offset\":0,\"prev\":null,\"totalCount\":10},\"objects\":[{\"nested\":{\"doubleValue\":1.1,\"integerValue\":2},\"stringValue\":\"string_value\"}]}";
-        String actualResponse = JsonConverter.toJSON(getResourceSet(), "nested.doubleValue,stringValue,nested.integerValue");
+        String actualResponse = JsonConverter.toJSON(getResourceSet(), new String[] {
+                "nested.doubleValue",
+                "stringValue",
+                "nested.integerValue"
+        });
 
         Assert.assertEquals("message", expectedResponse, actualResponse);
     }
