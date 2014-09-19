@@ -1,7 +1,6 @@
 package net.apetheory.publicise.server.data.database;
 
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.data.ResourceSet;
@@ -59,9 +58,9 @@ public class Database {
 
             if(establishedListener != null) {
                 DB database = client.getDB(NAME);
-                DBCollection coll = database.getCollection(collection.getName());
-
-                result = establishedListener.onEstablished(database, coll);
+                result = establishedListener.onEstablished(
+                        database.getCollection(collection.getName())
+                );
             }
 
         } catch (UnknownHostException e) {

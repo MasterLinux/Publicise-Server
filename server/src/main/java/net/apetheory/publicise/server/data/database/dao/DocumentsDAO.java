@@ -24,7 +24,7 @@ public class DocumentsDAO {
      * @param errorListener A listener which is called if an error is occurred during the transaction
      */
     public static ResourceSet insertInto(Database database, DocumentResource document, OnTransactionErrorListener errorListener) {
-        return database.connect(Database.Collection.Documents, (database1, collection) -> {
+        return database.connect(Database.Collection.Documents, (collection) -> {
             BasicDBObject dbObj = DBObjectConverter.toDBObject(document);
 
             try {
@@ -50,7 +50,7 @@ public class DocumentsDAO {
     }
 
     public static ResourceSet getByIdFrom(Database database, String documentId, OnTransactionErrorListener errorListener) {
-        return database.connect(Database.Collection.Documents, (database1, collection) -> {
+        return database.connect(Database.Collection.Documents, (collection) -> {
             if(ObjectId.isValid(documentId)) {
                 ObjectId id = new ObjectId(documentId);
 
@@ -74,7 +74,7 @@ public class DocumentsDAO {
     }
 
     public static ResourceSet getFrom(Database database, UriInfo uriInfo, int offset, int limit, OnTransactionErrorListener errorListener) {
-        return database.connect(Database.Collection.Documents, (database1, collection) -> {
+        return database.connect(Database.Collection.Documents, (collection) -> {
             DocumentResource resource;
             DBCursor resultSet;
             DBObject obj;
