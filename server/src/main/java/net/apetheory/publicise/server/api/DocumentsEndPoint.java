@@ -2,6 +2,8 @@ package net.apetheory.publicise.server.api;
 
 import flexjson.JSONDeserializer;
 import net.apetheory.publicise.server.Config;
+import net.apetheory.publicise.server.api.parameter.FieldsParameter;
+import net.apetheory.publicise.server.api.parameter.PaginationParameter;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.dao.DocumentsDAO;
@@ -77,17 +79,16 @@ public class DocumentsEndPoint {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getDocuments(
-            @QueryParam("limit") @DefaultValue("20") int limit,
-            @QueryParam("offset") int offset,
-            @QueryParam("fields") String fields,
+            @BeanParam PaginationParameter pagination,
+            @BeanParam FieldsParameter fields,
             @Context UriInfo uriInfo
     ) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
 
-        ResourceSet result = DocumentsDAO.getFrom(db, uriInfo, offset, limit, () -> {
+        ResourceSet result = DocumentsDAO.getFrom(db, uriInfo, pagination.getOffset(), pagination.getLimit(), () -> {
             //TODO handle error
         });
 
-        return result != null ? result.toJson(fields) : null;
+        return result != null ? result.toJson(fields.getFields()) : null;
     }
 }

@@ -3,6 +3,7 @@ package net.apetheory.publicise.server.data;
 import net.apetheory.publicise.server.data.converter.JsonConverter;
 import net.apetheory.publicise.server.resource.BaseResource;
 import net.apetheory.publicise.server.resource.MetaModel;
+import org.jetbrains.annotations.NotNull;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
@@ -39,10 +40,10 @@ public class ResourceSet<TResource extends BaseResource> {
      * @return This resource set as JSON formatted string
      */
     public String toJson() {
-        return toJson(null);
+        return toJson(new String[]{});
     }
 
-    public String toJson(String fields) {
+    public String toJson(@NotNull String[] fields) {
         return JsonConverter.toJSON(this, fields);
     }
 
