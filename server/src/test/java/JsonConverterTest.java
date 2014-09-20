@@ -16,23 +16,63 @@ public class JsonConverterTest {
     private static final int EXPECTED_INT_VALUE_NESTED = 4;
 
     @Test
-    public void testConverterShouldConvert() {
-        String expectedResponse = "{\"meta\":{\"filteredCount\":1,\"limit\":10,\"next\":null,\"offset\":0,\"prev\":null,\"totalCount\":10},\"objects\":[{\"id\":\"id\",\"nested\":{\"doubleValue\":1.1,\"integerValue\":2,\"nested\":{\"doubleValue\":3.3,\"integerValue\":4,\"nested\":null}},\"resourceUri\":null,\"stringValue\":\"string_value\"}]}";
-        String actualResponse = JsonConverter.toJSON(getResourceSet(), null);
+    public void testResponseShouldContainAll() {
+        String actualResponse = JsonConverter.toJSON(getResourceSet(), new String[]{});
 
-        Assert.assertEquals("message", expectedResponse, actualResponse);
+        Assert.assertNotNull(actualResponse);
+
+        Assert.assertTrue(actualResponse.contains("\"meta\":{"));
+        Assert.assertTrue(actualResponse.contains("\"filteredCount\":1"));
+        Assert.assertTrue(actualResponse.contains("\"totalCount\":" + EXPECTED_TOTAL_COUNT));
+        Assert.assertTrue(actualResponse.contains("\"limit\":10"));
+        Assert.assertTrue(actualResponse.contains("\"next\":null"));
+        Assert.assertTrue(actualResponse.contains("\"prev\":null"));
+        Assert.assertTrue(actualResponse.contains("\"offset\":0"));
+
+        Assert.assertTrue(actualResponse.contains("\"objects\":["));
+        Assert.assertTrue(actualResponse.contains("\"id\":\"" + EXPECTED_RES_ID + "\""));
+        Assert.assertTrue(actualResponse.contains("\"stringValue\":\"" + EXPECTED_STRING_VALUE + "\""));
+        Assert.assertTrue(actualResponse.contains("\"resourceUri\":null"));
+
+        Assert.assertTrue(actualResponse.contains("\"nested\":{"));
+        Assert.assertTrue(actualResponse.contains("\"integerValue\":" + EXPECTED_INT_VALUE + ""));
+        Assert.assertTrue(actualResponse.contains("\"doubleValue\":" + EXPECTED_DOUBLE_VALUE + ""));
+
+        Assert.assertTrue(actualResponse.contains("\"integerValue\":" + EXPECTED_INT_VALUE_NESTED + ""));
+        Assert.assertTrue(actualResponse.contains("\"doubleValue\":" + EXPECTED_DOUBLE_VALUE_NESTED + ""));
     }
 
     @Test
-    public void testConverterShouldFilter() {
-        String expectedResponse = "{\"meta\":{\"filteredCount\":1,\"limit\":10,\"next\":null,\"offset\":0,\"prev\":null,\"totalCount\":10},\"objects\":[{\"nested\":{\"doubleValue\":1.1,\"integerValue\":2},\"stringValue\":\"string_value\"}]}";
-        String actualResponse = JsonConverter.toJSON(getResourceSet(), new String[] {
-                "nested.doubleValue",
-                "stringValue",
-                "nested.integerValue"
-        });
+    public void testResponseShouldContainJustSpecificFields() {
+        String actualResponse = JsonConverter
+                .toJSON(getResourceSet(), new String[]{
+                        "nested.doubleValue",
+                        "stringValue",
+                        "nested.integerValue",
+                        "nested.nested.doubleValue"
+                });
 
-        Assert.assertEquals("message", expectedResponse, actualResponse);
+        Assert.assertNotNull(actualResponse);
+
+        Assert.assertTrue(actualResponse.contains("\"meta\":{"));
+        Assert.assertTrue(actualResponse.contains("\"filteredCount\":1"));
+        Assert.assertTrue(actualResponse.contains("\"totalCount\":" + EXPECTED_TOTAL_COUNT));
+        Assert.assertTrue(actualResponse.contains("\"limit\":10"));
+        Assert.assertTrue(actualResponse.contains("\"next\":null"));
+        Assert.assertTrue(actualResponse.contains("\"prev\":null"));
+        Assert.assertTrue(actualResponse.contains("\"offset\":0"));
+
+        Assert.assertTrue(actualResponse.contains("\"objects\":["));
+        Assert.assertFalse(actualResponse.contains("\"id\":\"" + EXPECTED_RES_ID + "\""));
+        Assert.assertTrue(actualResponse.contains("\"stringValue\":\"" + EXPECTED_STRING_VALUE + "\""));
+        Assert.assertFalse(actualResponse.contains("\"resourceUri\":null"));
+
+        Assert.assertTrue(actualResponse.contains("\"nested\":{"));
+        Assert.assertTrue(actualResponse.contains("\"integerValue\":" + EXPECTED_INT_VALUE + ""));
+        Assert.assertTrue(actualResponse.contains("\"doubleValue\":" + EXPECTED_DOUBLE_VALUE + ""));
+
+        Assert.assertFalse(actualResponse.contains("\"integerValue\":" + EXPECTED_INT_VALUE_NESTED + ""));
+        Assert.assertTrue(actualResponse.contains("\"doubleValue\":" + EXPECTED_DOUBLE_VALUE_NESTED + ""));
     }
 
     private ResourceSet getResourceSet() {
