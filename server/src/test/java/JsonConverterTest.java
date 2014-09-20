@@ -16,7 +16,7 @@ public class JsonConverterTest {
     private static final int EXPECTED_INT_VALUE_NESTED = 4;
 
     @Test
-    public void testResponseShouldContainAll() {
+    public void testResponseShouldContainAllFields() {
         String actualResponse = JsonConverter.toJSON(getResourceSet(), new String[]{});
 
         Assert.assertNotNull(actualResponse);
