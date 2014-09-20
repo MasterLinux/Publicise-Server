@@ -1,6 +1,6 @@
 package net.apetheory.publicise.server.api.parameter;
 
-import net.apetheory.publicise.server.data.StringUtils;
+import net.apetheory.publicise.server.data.utility.StringUtils;
 
 import javax.ws.rs.QueryParam;
 

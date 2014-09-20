@@ -1,4 +1,4 @@
-package net.apetheory.publicise.server.data;
+package net.apetheory.publicise.server.data.utility;
 
 /**
  * Collection of String utilities
