@@ -103,16 +103,18 @@ public class UriUtils {
      * @return true if it is valid, false otherwise
      */
     public static boolean isQueryParameterValid(String name, List<String> value, String... excludes) {
-        boolean isExcluded = false;
+        boolean isExcluded = StringUtils.isEmpty(name);
 
-        for(String exclude : excludes) {
-            if(name.equals(exclude)) {
-                isExcluded = true;
-                break;
+        if(!isExcluded) {
+            for (String exclude : excludes) {
+                if (name.equals(exclude)) {
+                    isExcluded = true;
+                    break;
+                }
             }
         }
 
-        return !isExcluded && value.size() > 0 &&
+        return !isExcluded && value != null && value.size() > 0 &&
                 !StringUtils.isEmpty(value.get(0));
     }
 }
