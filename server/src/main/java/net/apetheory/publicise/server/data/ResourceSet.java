@@ -1,16 +1,14 @@
 package net.apetheory.publicise.server.data;
 
 import net.apetheory.publicise.server.data.converter.JsonConverter;
+import net.apetheory.publicise.server.data.utility.UriUtils;
 import net.apetheory.publicise.server.resource.BaseResource;
 import net.apetheory.publicise.server.resource.MetaModel;
 import org.jetbrains.annotations.NotNull;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Christoph on 13.09.2014.

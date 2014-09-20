@@ -1,4 +1,6 @@
-package net.apetheory.publicise.server.data;
+package net.apetheory.publicise.server.data.utility;
+
+import net.apetheory.publicise.server.data.UriType;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;

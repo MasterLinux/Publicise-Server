@@ -1,4 +1,4 @@
-import net.apetheory.publicise.server.data.UriUtils;
+import net.apetheory.publicise.server.data.utility.UriUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -147,6 +147,8 @@ public class UriUtilsTest {
         info = buildUriInfoMock(null);
         Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
     }
+
+    //TODO test UriUtils.buildUriPath
 
     private UriInfo buildUriInfoMock(MultivaluedHashMap<String, String> parameter) {
         UriInfo uriInfo = mock(UriInfo.class);
