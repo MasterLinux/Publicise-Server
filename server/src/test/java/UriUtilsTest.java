@@ -71,19 +71,37 @@ public class UriUtilsTest {
     }
 
     @Test
+    public void testNonNumberOffsetValueShouldBeIgnored() {
+        MultivaluedHashMap<String, String> parameter = new MultivaluedHashMap<>();
+        parameter.add("offset", "test");
+        UriInfo info = buildUriInfoMock(parameter);
+
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentOffset(info));
+    }
+
+    @Test
     public void testOffsetValueShouldBeUndefined() {
         MultivaluedHashMap<String, String> parameter = new MultivaluedHashMap<>();
-        UriInfo info = buildUriInfoMock(parameter);
         String emptyValue = "";
 
         //test missing value
-        Assert.assertEquals((Object) UriUtils.UNDEFINED_OFFSET_PARAMETER_VALUE, UriUtils.getCurrentOffset(info));
-
-        parameter.add("offset", emptyValue);
-        info = buildUriInfoMock(parameter);
+        UriInfo info = buildUriInfoMock(parameter);
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentOffset(info));
 
         //test empty value
-        Assert.assertEquals((Object) UriUtils.UNDEFINED_OFFSET_PARAMETER_VALUE, UriUtils.getCurrentOffset(info));
+        parameter.add("offset", emptyValue);
+        info = buildUriInfoMock(parameter);
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentOffset(info));
+
+        //test null value
+        parameter.remove("offset");
+        parameter.add("offset", null);
+        info = buildUriInfoMock(parameter);
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentOffset(info));
+
+        //test missing parameter
+        info = buildUriInfoMock(null);
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentOffset(info));
     }
 
     @Test
@@ -96,25 +114,46 @@ public class UriUtilsTest {
     }
 
     @Test
+    public void testNonNumberLimitValueShouldBeIgnored() {
+        MultivaluedHashMap<String, String> parameter = new MultivaluedHashMap<>();
+        parameter.add("limit", "test");
+        UriInfo info = buildUriInfoMock(parameter);
+
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
+    }
+
+    @Test
     public void testLimitValueShouldBeUndefined() {
         MultivaluedHashMap<String, String> parameter = new MultivaluedHashMap<>();
-        UriInfo info = buildUriInfoMock(parameter);
         String emptyValue = "";
 
         //test missing value
-        Assert.assertEquals((Object) UriUtils.UNDEFINED_LIMIT_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
+        UriInfo info = buildUriInfoMock(parameter);
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
 
-        parameter.add("limit", emptyValue);
-        info = buildUriInfoMock(parameter);
 
         //test empty value
-        Assert.assertEquals((Object) UriUtils.UNDEFINED_LIMIT_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
+        parameter.add("limit", emptyValue);
+        info = buildUriInfoMock(parameter);
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
+
+        //test null value
+        parameter.remove("limit");
+        parameter.add("limit", null);
+        info = buildUriInfoMock(parameter);
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
+
+        //test missing parameter
+        info = buildUriInfoMock(null);
+        Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
     }
 
     private UriInfo buildUriInfoMock(MultivaluedHashMap<String, String> parameter) {
         UriInfo uriInfo = mock(UriInfo.class);
 
-        when(uriInfo.getQueryParameters()).thenReturn(parameter);
+        if(parameter != null) {
+            when(uriInfo.getQueryParameters()).thenReturn(parameter);
+        }
 
         return uriInfo;
     }
