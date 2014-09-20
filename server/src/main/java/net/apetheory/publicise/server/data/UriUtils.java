@@ -13,8 +13,8 @@ import java.util.Map;
  * @author Christoph Grundmann
  */
 public class UriUtils {
-    public static final int EMPTY_OFFSET_PARAMETER_VALUE = -1;
-    public static final int EMPTY_LIMIT_PARAMETER_VALUE = -1;
+    public static final int UNDEFINED_OFFSET_PARAMETER_VALUE = -1;
+    public static final int UNDEFINED_LIMIT_PARAMETER_VALUE = -1;
 
     /**
      * Builds the URI path for a specific URI type
@@ -45,12 +45,12 @@ public class UriUtils {
         }
 
         //set limit parameter
-        if(limit != EMPTY_LIMIT_PARAMETER_VALUE) {
+        if(limit != UNDEFINED_LIMIT_PARAMETER_VALUE) {
             builder.replaceQueryParam("limit", String.valueOf(limit));
         }
 
         //set offset parameter
-        if(offset != EMPTY_OFFSET_PARAMETER_VALUE) {
+        if(offset != UNDEFINED_OFFSET_PARAMETER_VALUE) {
             if(!UriType.Self.equals(type)) {
                 offset = UriType.Previous.equals(type) ? offset - 1 : offset + 1;
             }
@@ -64,14 +64,18 @@ public class UriUtils {
      * Gets the current offset parameter value
      *
      * @param uriInfo The URI info object containing all URI info
-     * @return The current offset or UriUtils.EMPTY_OFFSET_PARAMETER_VALUE if field does not exist
+     * @return The current offset or UriUtils.UNDEFINED_OFFSET_PARAMETER_VALUE if field does not exist
      */
     public static int getCurrentOffset(UriInfo uriInfo) {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
 
-        int offset = EMPTY_OFFSET_PARAMETER_VALUE;
+        int offset = UNDEFINED_OFFSET_PARAMETER_VALUE;
         if(queryParameters.containsKey("offset")) {
-            offset = Integer.parseInt(queryParameters.get("offset").get(0));
+            String value = queryParameters.get("offset").get(0);
+
+            if(!StringUtils.isEmpty(value)) {
+                offset = Integer.parseInt(queryParameters.get("offset").get(0));
+            }
         }
 
         return offset;
@@ -81,14 +85,18 @@ public class UriUtils {
      * Gets the current limit parameter value
      *
      * @param uriInfo The URI info object containing all URI info
-     * @return The current limit or UriUtils.EMPTY_LIMIT_PARAMETER_VALUE if field does not exist
+     * @return The current limit or UriUtils.UNDEFINED_LIMIT_PARAMETER_VALUE if field does not exist
      */
     public static int getCurrentLimit(UriInfo uriInfo) {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
 
-        int limit = EMPTY_LIMIT_PARAMETER_VALUE;
+        int limit = UNDEFINED_LIMIT_PARAMETER_VALUE;
         if(queryParameters.containsKey("limit")) {
-            limit = Integer.parseInt(queryParameters.get("limit").get(0));
+            String value = queryParameters.get("limit").get(0);
+
+            if(!StringUtils.isEmpty(value)) {
+                limit = Integer.parseInt(queryParameters.get("limit").get(0));
+            }
         }
 
         return limit;
