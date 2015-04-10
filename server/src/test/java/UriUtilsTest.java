@@ -146,6 +146,8 @@ public class UriUtilsTest {
         //test missing parameter
         info = buildUriInfoMock(null);
         Assert.assertEquals((Object) UriUtils.UNDEFINED_INTEGER_PARAMETER_VALUE, UriUtils.getCurrentLimit(info));
+
+        Assert.assertTrue(false);
     }
 
     //TODO test UriUtils.buildUriPath
