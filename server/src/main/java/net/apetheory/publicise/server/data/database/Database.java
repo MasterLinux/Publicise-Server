@@ -1,13 +1,11 @@
 package net.apetheory.publicise.server.data.database;
 
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.listener.OnConnectionErrorListener;
 import net.apetheory.publicise.server.data.database.listener.OnConnectionEstablishedListener;
-
-import java.net.UnknownHostException;
 
 /**
  * Helper class to establish a connection
@@ -57,13 +55,13 @@ public class Database {
             client = new MongoClient(host, port);
 
             if(establishedListener != null) {
-                DB database = client.getDB(NAME);
+                MongoDatabase database = client.getDatabase(NAME);
                 result = establishedListener.onEstablished(
                         database.getCollection(collection.getName())
                 );
             }
 
-        } catch (UnknownHostException e) {
+        } catch (Exception e) {
             //TODO log error
 
             if(errorListener != null) {

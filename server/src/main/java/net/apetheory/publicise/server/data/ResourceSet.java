@@ -124,13 +124,16 @@ public class ResourceSet<TResource extends BaseResource> {
             return this;
         }
 
+        public Builder<TResource> setFilteredCount(long filteredCount) {
+            meta.setFilteredCount(filteredCount);
+            return this;
+        }
+
         /**
          * Builds the ResourceSet
          * @return The ResourceSet
          */
         public ResourceSet<TResource> build() {
-            meta.setFilteredCount(objects.size());
-
             if(uriInfo != null) {
                 setPrev(meta, uriInfo);
                 setNext(meta, uriInfo);

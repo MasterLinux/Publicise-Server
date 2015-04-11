@@ -7,7 +7,7 @@ package net.apetheory.publicise.server.resource;
 public class MetaModel {
     private int offset;
     private int limit;
-    private int filteredCount;
+    private long filteredCount;
     private long totalCount;
     private String next;
     private String prev;
@@ -28,11 +28,11 @@ public class MetaModel {
         this.limit = limit;
     }
 
-    public int getFilteredCount() {
+    public long getFilteredCount() {
         return filteredCount;
     }
 
-    public void setFilteredCount(int filteredCount) {
+    public void setFilteredCount(long filteredCount) {
         this.filteredCount = filteredCount;
     }
 
