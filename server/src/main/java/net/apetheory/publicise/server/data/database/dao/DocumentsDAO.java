@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCursor;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.DocumentConverter;
 import net.apetheory.publicise.server.data.database.Database;
+import net.apetheory.publicise.server.data.database.error.InsertionError;
 import net.apetheory.publicise.server.data.database.listener.OnTransactionErrorListener;
 import net.apetheory.publicise.server.resource.DocumentResource;
 import org.bson.Document;
@@ -34,8 +35,8 @@ public class DocumentsDAO {
             try {
                 collection.insertOne(dbObj);
             } catch(MongoException e) {
-                if(errorListener != null) { //TODO handle error globally?
-                    errorListener.onError(); //TODO pass error code
+                if(errorListener != null) {
+                    errorListener.onError(new InsertionError());
                 }
 
                 return null;
@@ -49,7 +50,9 @@ public class DocumentsDAO {
                     .build();
 
         }, (error) -> {
-            //TODO handle error
+            if(errorListener != null) {
+                errorListener.onError(error);
+            }
         }).disconnect().getResult();
     }
 
@@ -74,7 +77,9 @@ public class DocumentsDAO {
             return null;
 
         }, (error) -> {
-            //TODO handle error
+            if(errorListener != null) {
+                errorListener.onError(error);
+            }
         }).disconnect().getResult();
     }
 
@@ -103,6 +108,9 @@ public class DocumentsDAO {
             return builder.build();
 
         }, (error) -> {
+            if(errorListener != null) {
+                errorListener.onError(error);
+            }
             //TODO handle error
         }).disconnect().getResult();
     }

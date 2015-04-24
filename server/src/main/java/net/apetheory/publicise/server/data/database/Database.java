@@ -4,6 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.data.ResourceSet;
+import net.apetheory.publicise.server.data.database.error.ConnectionError;
 import net.apetheory.publicise.server.data.database.listener.OnConnectionErrorListener;
 import net.apetheory.publicise.server.data.database.listener.OnConnectionEstablishedListener;
 
@@ -65,7 +66,7 @@ public class Database {
             //TODO log error
 
             if(errorListener != null) {
-                errorListener.onError(Error.UnknownHost);
+                errorListener.onError(new ConnectionError());
             }
         }
 
@@ -111,7 +112,7 @@ public class Database {
      * Collection of possible errors
      */
     public enum Error {
-        UnknownHost
+        InsertionFailed, UnknownHost
     }
 
 }

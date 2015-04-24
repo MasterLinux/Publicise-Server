@@ -1,10 +1,9 @@
 package net.apetheory.publicise.server.data;
 
-import net.apetheory.publicise.server.data.converter.JsonConverter;
 import net.apetheory.publicise.server.data.utility.UriUtils;
 import net.apetheory.publicise.server.resource.BaseResource;
-import net.apetheory.publicise.server.resource.MetaModel;
-import org.jetbrains.annotations.NotNull;
+import net.apetheory.publicise.server.resource.MetaDocument;
+import org.bson.BsonDocument;
 
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
@@ -13,14 +12,14 @@ import java.util.List;
 /**
  * Created by Christoph on 13.09.2014.
  */
-public class ResourceSet<TResource extends BaseResource> {
+public class ResourceSet<TResource extends BaseResource> extends BsonDocument {
     private List<TResource> objects;
-    private MetaModel meta;
+    private MetaDocument meta;
 
     public static final int DEFAULT_OFFSET = 0;
     public static final int DEFAULT_LIMIT = 10;
 
-    private ResourceSet(List<TResource> objects, MetaModel meta) {
+    private ResourceSet(List<TResource> objects, MetaDocument meta) {
         this.objects = objects;
         this.meta = meta;
     }
@@ -29,14 +28,16 @@ public class ResourceSet<TResource extends BaseResource> {
         return objects;
     }
 
-    public MetaModel getMeta() {
+    public MetaDocument getMeta() {
         return meta;
     }
+
 
     /**
      * Serializes this resource set to a JSON formatted string
      * @return This resource set as JSON formatted string
      */
+    /*
     public String toJson() {
         return toJson(new String[]{});
     }
@@ -44,6 +45,7 @@ public class ResourceSet<TResource extends BaseResource> {
     public String toJson(@NotNull String[] fields) {
         return JsonConverter.toJSON(this, fields);
     }
+    */
 
     /**
      * Builder used to build a ResourceSet
@@ -52,7 +54,7 @@ public class ResourceSet<TResource extends BaseResource> {
 
         private List<TResource> objects;
         private UriInfo uriInfo;
-        private MetaModel meta;
+        private MetaDocument meta;
 
         /**
          * Initializes the ResourceSet builder
@@ -61,7 +63,7 @@ public class ResourceSet<TResource extends BaseResource> {
         public Builder(long totalCount) {
             objects = new ArrayList<>();
 
-            meta = new MetaModel();
+            meta = new MetaDocument();
             meta.setTotalCount(totalCount);
             meta.setLimit(DEFAULT_LIMIT);
             meta.setOffset(DEFAULT_OFFSET);
@@ -146,7 +148,7 @@ public class ResourceSet<TResource extends BaseResource> {
          * Sets the URI which points to the previous
          * result set of resources
          */
-        private void setPrev(MetaModel meta, UriInfo uriInfo) {
+        private void setPrev(MetaDocument meta, UriInfo uriInfo) {
             if (meta.getOffset() > 0) {
                 meta.setPrev(UriUtils.buildUriPath(UriType.Previous, uriInfo));
             }
@@ -156,7 +158,7 @@ public class ResourceSet<TResource extends BaseResource> {
          * Sets the URI which points to the next
          * result set of resources
          */
-        private void setNext(MetaModel meta, UriInfo uriInfo) {
+        private void setNext(MetaDocument meta, UriInfo uriInfo) {
             long rest = meta.getTotalCount() - meta.getLimit() * (meta.getOffset() + 1);
             if(rest > 0) {
                 meta.setNext(UriUtils.buildUriPath(UriType.Next, uriInfo));

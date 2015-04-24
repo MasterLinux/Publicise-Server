@@ -45,7 +45,7 @@ public class DocumentsEndPoint {
         DocumentResource resource = new JSONDeserializer<DocumentResource>()
                     .deserialize(body, DocumentResource.class);
 
-        ResourceSet result = DocumentsDAO.insertInto(db, resource, () -> {
+        ResourceSet result = DocumentsDAO.insertInto(db, resource, (error) -> {
             //TODO handle error
         });
 
@@ -64,7 +64,7 @@ public class DocumentsEndPoint {
     public String getDocumentById(@PathParam("id") String id) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
 
-        ResourceSet result = DocumentsDAO.getByIdFrom(db, id, () -> {
+        ResourceSet result = DocumentsDAO.getByIdFrom(db, id, (error) -> {
             //TODO handle error
         });
 
@@ -85,7 +85,7 @@ public class DocumentsEndPoint {
     ) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
 
-        ResourceSet result = DocumentsDAO.getFrom(db, uriInfo, pagination.getOffset(), pagination.getLimit(), () -> {
+        ResourceSet result = DocumentsDAO.getFrom(db, uriInfo, pagination.getOffset(), pagination.getLimit(), (error) -> {
             //TODO handle error
         });
 
