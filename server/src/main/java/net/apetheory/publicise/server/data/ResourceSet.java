@@ -1,9 +1,9 @@
 package net.apetheory.publicise.server.data;
 
+import net.apetheory.publicise.server.data.converter.JsonConverter;
 import net.apetheory.publicise.server.data.utility.UriUtils;
 import net.apetheory.publicise.server.resource.BaseResource;
-import net.apetheory.publicise.server.resource.MetaDocument;
-import org.bson.BsonDocument;
+import org.jetbrains.annotations.NotNull;
 
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
@@ -12,14 +12,14 @@ import java.util.List;
 /**
  * Created by Christoph on 13.09.2014.
  */
-public class ResourceSet<TResource extends BaseResource> extends BsonDocument {
+public class ResourceSet<TResource extends BaseResource> {
     private List<TResource> objects;
-    private MetaDocument meta;
+    private Meta meta;
 
     public static final int DEFAULT_OFFSET = 0;
     public static final int DEFAULT_LIMIT = 10;
 
-    private ResourceSet(List<TResource> objects, MetaDocument meta) {
+    private ResourceSet(List<TResource> objects, Meta meta) {
         this.objects = objects;
         this.meta = meta;
     }
@@ -28,16 +28,14 @@ public class ResourceSet<TResource extends BaseResource> extends BsonDocument {
         return objects;
     }
 
-    public MetaDocument getMeta() {
+    public Meta getMeta() {
         return meta;
     }
 
-
     /**
-     * Serializes this resource set to a JSON formatted string
-     * @return This resource set as JSON formatted string
+     * Converts the resource set to a JSON formatted string
+     * @return The resource set in its JSON representation
      */
-    /*
     public String toJson() {
         return toJson(new String[]{});
     }
@@ -45,7 +43,6 @@ public class ResourceSet<TResource extends BaseResource> extends BsonDocument {
     public String toJson(@NotNull String[] fields) {
         return JsonConverter.toJSON(this, fields);
     }
-    */
 
     /**
      * Builder used to build a ResourceSet
@@ -54,7 +51,7 @@ public class ResourceSet<TResource extends BaseResource> extends BsonDocument {
 
         private List<TResource> objects;
         private UriInfo uriInfo;
-        private MetaDocument meta;
+        private Meta meta;
 
         /**
          * Initializes the ResourceSet builder
@@ -63,7 +60,7 @@ public class ResourceSet<TResource extends BaseResource> extends BsonDocument {
         public Builder(long totalCount) {
             objects = new ArrayList<>();
 
-            meta = new MetaDocument();
+            meta = new Meta();
             meta.setTotalCount(totalCount);
             meta.setLimit(DEFAULT_LIMIT);
             meta.setOffset(DEFAULT_OFFSET);
@@ -148,7 +145,7 @@ public class ResourceSet<TResource extends BaseResource> extends BsonDocument {
          * Sets the URI which points to the previous
          * result set of resources
          */
-        private void setPrev(MetaDocument meta, UriInfo uriInfo) {
+        private void setPrev(Meta meta, UriInfo uriInfo) {
             if (meta.getOffset() > 0) {
                 meta.setPrev(UriUtils.buildUriPath(UriType.Previous, uriInfo));
             }
@@ -158,11 +155,72 @@ public class ResourceSet<TResource extends BaseResource> extends BsonDocument {
          * Sets the URI which points to the next
          * result set of resources
          */
-        private void setNext(MetaDocument meta, UriInfo uriInfo) {
+        private void setNext(Meta meta, UriInfo uriInfo) {
             long rest = meta.getTotalCount() - meta.getLimit() * (meta.getOffset() + 1);
             if(rest > 0) {
                 meta.setNext(UriUtils.buildUriPath(UriType.Next, uriInfo));
             }
+        }
+    }
+
+    /**
+     * Model which contains each meta information
+     * of the requested resource.
+     */
+    public static class Meta {
+        private int limit;
+        private int offset;
+        private long filteredCount;
+        private long totalCount;
+        private String next;
+        private String prev;
+
+        public int getLimit() {
+            return limit;
+        }
+
+        public void setLimit(int limit) {
+            this.limit = limit;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
+
+        public long getFilteredCount() {
+            return filteredCount;
+        }
+
+        public void setFilteredCount(long filteredCount) {
+            this.filteredCount = filteredCount;
+        }
+
+        public long getTotalCount() {
+            return totalCount;
+        }
+
+        public void setTotalCount(long totalCount) {
+            this.totalCount = totalCount;
+        }
+
+        public String getNext() {
+            return next;
+        }
+
+        public void setNext(String next) {
+            this.next = next;
+        }
+
+        public String getPrev() {
+            return prev;
+        }
+
+        public void setPrev(String prev) {
+            this.prev = prev;
         }
     }
 }
