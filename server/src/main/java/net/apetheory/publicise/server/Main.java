@@ -1,11 +1,8 @@
 package net.apetheory.publicise.server;
 
-import net.apetheory.publicise.server.data.ApiError;
-import net.apetheory.publicise.server.data.database.error.InsertionError;
-
-import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.URI;
+import java.util.logging.Logger;
 
 public class Main {
     private static final Logger logger = Logger.getLogger(Server.class.getName());
@@ -17,9 +14,6 @@ public class Main {
     public static void main(String[] args)
     {
         final Server server = new Server(URI.create("http://127.0.0.1:9080"));
-
-        ApiError er = new InsertionError();
-        String json = er.toJson();
 
         //register shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
