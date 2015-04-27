@@ -17,7 +17,7 @@ public class JsonConverterTest {
 
     @Test
     public void testResponseShouldContainAllFields() {
-        String actualResponse = JsonConverter.toJSON(getResourceSet(), new String[]{});
+        String actualResponse = JsonConverter.toJSON(getResourceSet(), new String[]{}, false);
 
         Assert.assertNotNull(actualResponse);
 
@@ -50,7 +50,7 @@ public class JsonConverterTest {
                         "stringValue",
                         "nested.integerValue",
                         "nested.nested.doubleValue"
-                });
+                }, false);
 
         Assert.assertNotNull(actualResponse);
 

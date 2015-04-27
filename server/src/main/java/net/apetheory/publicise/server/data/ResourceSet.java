@@ -37,11 +37,19 @@ public class ResourceSet<TResource extends BaseResource> {
      * @return The resource set in its JSON representation
      */
     public String toJson() {
-        return toJson(new String[]{});
+        return toJson(new String[]{}, true);
+    }
+
+    public String toJson(boolean prettyPrint) {
+        return toJson(new String[]{}, prettyPrint);
     }
 
     public String toJson(@NotNull String[] fields) {
-        return JsonConverter.toJSON(this, fields);
+        return toJson(fields, true);
+    }
+
+    public String toJson(@NotNull String[] fields, boolean prettyPrint) {
+        return JsonConverter.toJSON(this, fields, prettyPrint);
     }
 
     /**

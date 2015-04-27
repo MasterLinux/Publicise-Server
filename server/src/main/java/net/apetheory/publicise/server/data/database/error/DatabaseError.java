@@ -3,7 +3,9 @@ package net.apetheory.publicise.server.data.database.error;
 import net.apetheory.publicise.server.data.ApiError;
 
 /**
- * Created by Christoph on 23.04.2015.
+ * Representation of a database error.
+ *
+ * Each database error code starts with 0xCC
  */
 public abstract class DatabaseError extends ApiError {
 }

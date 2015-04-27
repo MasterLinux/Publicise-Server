@@ -16,7 +16,7 @@ public class JsonConverter {
      * @param fields Collection of required fields to return in response
      * @return A JSON formatted String representing the ResourceSet
      */
-    public static String toJSON(ResourceSet value, @NotNull String[] fields) {
+    public static String toJSON(ResourceSet value, @NotNull String[] fields, boolean prettyPrint) {
         JSONSerializer serializer = new JSONSerializer();
 
         if(fields.length > 0) {
@@ -30,6 +30,7 @@ public class JsonConverter {
         }
 
         return serializer
+                .prettyPrint(prettyPrint)
                 .exclude("*.class")
                 .serialize(value);
     }

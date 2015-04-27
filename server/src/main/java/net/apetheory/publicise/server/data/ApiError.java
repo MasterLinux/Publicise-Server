@@ -1,61 +1,53 @@
 package net.apetheory.publicise.server.data;
 
-import org.bson.BsonDocument;
-import org.bson.BsonInt32;
-import org.bson.BsonString;
+import flexjson.JSON;
+import flexjson.JSONSerializer;
 
 /**
- * Representation of an error
+ * Representation of an API error
  */
 public abstract class ApiError {
-    public static final int DefaultHttpStatusCode = 0;
-    private int httpStatusCode;
-
-    /**
-     * Initializes the error with a HTTP status coce
-     * @param httpStatusCode The HTTP status code which raises the error
-     */
-    public ApiError(int httpStatusCode) {
-        this.httpStatusCode = httpStatusCode;
-    }
-
-    /**
-     * Initializes the error
-     */
-    public ApiError() {
-        this.httpStatusCode = DefaultHttpStatusCode;
-    }
 
     /**
      * Gets the message of the error
      * @return The error message
      */
-    public abstract String getMessage();
+    @JSON
+    public abstract String getErrorMessage();
 
     /**
-     * Gets the HTTP status code which raises
-     * the error or Error.DefaultHttpStatusCode
-     * if the error isn't a HTTP error
+     * Gets the HTTP status code which raises the error
      * @return The HTTP status code
      */
-    public int getHttpStatusCode() {
-        return httpStatusCode;
-    }
+    @JSON
+    public abstract int getStatusCode();
 
     /**
      * Gets the error code which represents a specific error
      * @return The error code
      */
-    public abstract int getCode();
+    @JSON
+    public abstract int getErrorCode();
 
     /**
-     * Converts the error to a BSON document
-     * @return The BSON document which represents the error
+     * Gets the name of the error
+     * @return The name of the error
      */
-    public BsonDocument toDocument() {
-        return new BsonDocument()
-                .append("errorCode", new BsonInt32(getCode()))
-                .append("errorMessage", new BsonString(getMessage()))
-                .append("httpStatusCode", new BsonInt32(getHttpStatusCode()));
+    @JSON
+    public abstract String getErrorName();
+
+    /**
+     * Converts the error to its JSON representation
+     * @return The error as JSON formatted string
+     */
+    public String toJson() {
+        return toJson(true);
+    }
+
+    public String toJson(boolean prettyPrint) {
+        return new JSONSerializer()
+                .prettyPrint(prettyPrint)
+                .exclude("*.class")
+                .serialize(this);
     }
 }

@@ -1,4 +1,4 @@
-package net.apetheory.publicise.server.data.database;
+package net.apetheory.publicise.server.data.converter;
 
 import net.apetheory.publicise.server.data.database.meta.DatabaseField;
 import net.apetheory.publicise.server.data.database.meta.DatabaseId;

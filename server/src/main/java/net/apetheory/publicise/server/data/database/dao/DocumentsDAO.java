@@ -3,7 +3,7 @@ package net.apetheory.publicise.server.data.database.dao;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCursor;
 import net.apetheory.publicise.server.data.ResourceSet;
-import net.apetheory.publicise.server.data.database.DocumentConverter;
+import net.apetheory.publicise.server.data.converter.DocumentConverter;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.error.InsertionError;
 import net.apetheory.publicise.server.data.database.listener.OnTransactionErrorListener;
