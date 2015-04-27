@@ -2,13 +2,17 @@ package net.apetheory.publicise.server.api;
 
 import flexjson.JSONDeserializer;
 import net.apetheory.publicise.server.Config;
+import net.apetheory.publicise.server.api.documentation.meta.ErrorDescription;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
+import net.apetheory.publicise.server.api.documentation.meta.QueryParameterDescription;
 import net.apetheory.publicise.server.api.parameter.FieldsParameter;
 import net.apetheory.publicise.server.api.parameter.PaginationParameter;
 import net.apetheory.publicise.server.data.ApiErrorException;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.dao.DocumentsDAO;
+import net.apetheory.publicise.server.data.database.error.ConnectionError;
+import net.apetheory.publicise.server.data.database.error.InsertionError;
 import net.apetheory.publicise.server.resource.DocumentResource;
 
 import javax.ws.rs.*;
@@ -17,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 @Path("/documents")
-public class DocumentsEndPoint {
+public class DocumentsEndPoint extends BaseEndPoint {
 
     /**
      * Creates a new new document
@@ -65,6 +69,8 @@ public class DocumentsEndPoint {
     @GET
     @Path("/{id: [0-9a-zA-Z]+}")
     @Produces(MediaType.APPLICATION_JSON)
+    @ErrorDescription({InsertionError.class, ConnectionError.class})
+    @QueryParameterDescription(name = "id", type = "string", isRequired = true, description = "The ID of the document to get")
     public String getDocumentById(
             @BeanParam PrettyPrintHeader prettyPrint,
             @PathParam("id") String id
