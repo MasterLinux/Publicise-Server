@@ -2,8 +2,10 @@ package net.apetheory.publicise.server.api;
 
 import flexjson.JSONDeserializer;
 import net.apetheory.publicise.server.Config;
+import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
 import net.apetheory.publicise.server.api.parameter.FieldsParameter;
 import net.apetheory.publicise.server.api.parameter.PaginationParameter;
+import net.apetheory.publicise.server.data.ApiErrorException;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.dao.DocumentsDAO;
@@ -40,16 +42,18 @@ public class DocumentsEndPoint {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public String createDocument(String body) {
+    public String createDocument(@BeanParam PrettyPrintHeader prettyPrint, String body) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
+        boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
+
         DocumentResource resource = new JSONDeserializer<DocumentResource>()
                     .deserialize(body, DocumentResource.class);
 
         ResourceSet result = DocumentsDAO.insertInto(db, resource, (error) -> {
-            //TODO handle error
+            throw new ApiErrorException(error, isPrettyPrinted);
         });
 
-        return result != null ? result.toJson() : null;
+        return result != null ? result.toJson(isPrettyPrinted) : null;
     }
 
     /**
@@ -61,14 +65,18 @@ public class DocumentsEndPoint {
     @GET
     @Path("/{id: [0-9a-zA-Z]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getDocumentById(@PathParam("id") String id) {
+    public String getDocumentById(
+            @BeanParam PrettyPrintHeader prettyPrint,
+            @PathParam("id") String id
+    ) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
+        boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
 
         ResourceSet result = DocumentsDAO.getByIdFrom(db, id, (error) -> {
-            //TODO handle error
+            throw new ApiErrorException(error, isPrettyPrinted);
         });
 
-        return result != null ? result.toJson() : null;
+        return result != null ? result.toJson(isPrettyPrinted) : null;
     }
 
     /**
@@ -79,16 +87,18 @@ public class DocumentsEndPoint {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getDocuments(
+            @BeanParam PrettyPrintHeader prettyPrint,
             @BeanParam PaginationParameter pagination,
             @BeanParam FieldsParameter fields,
             @Context UriInfo uriInfo
     ) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
+        boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
 
         ResourceSet result = DocumentsDAO.getFrom(db, uriInfo, pagination.getOffset(), pagination.getLimit(), (error) -> {
-            //TODO handle error
+            throw new ApiErrorException(error, isPrettyPrinted);
         });
 
-        return result != null ? result.toJson(fields.getFields()) : null;
+        return result != null ? result.toJson(fields.getFields(), isPrettyPrinted) : null;
     }
 }
