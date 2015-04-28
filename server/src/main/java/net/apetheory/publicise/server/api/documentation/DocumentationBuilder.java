@@ -26,13 +26,31 @@ public class DocumentationBuilder {
         allowedMethods.add(HttpMethod.HEAD);
         allowedMethods.add(HttpMethod.OPTIONS);
 
+        // add resource documentation
+        for(Annotation annotation : clz.getDeclaredAnnotations()) {
+            List<DocumentationBuilderCommand> commands = new ArrayList<DocumentationBuilderCommand>() {{
+                add(new PathDescriptionCommand(annotation, resourceBuilder));
+            }};
+
+            for(DocumentationBuilderCommand command : commands) {
+                if (command.execute()) {
+                    break;
+                }
+            }
+        }
+
+        // add http method documentation
         for (Method method : clz.getMethods()) {
             MethodDocumentation.Builder methodBuilder = new MethodDocumentation.Builder();
             List<DocumentationBuilderCommand> commands;
 
             for (Annotation annotation : method.getDeclaredAnnotations()) {
                 commands = new ArrayList<DocumentationBuilderCommand>() {{
-                    add(new QueryParameterDescriptionCommand(annotation, methodBuilder));
+                    add(new PathDescriptionCommand(annotation, methodBuilder));
+                    add(new ProducesDescriptionCommand(annotation, methodBuilder));
+                    add(new HeaderDescriptionCommand(annotation, methodBuilder));
+                    add(new ParametersDescriptionCommand(annotation, methodBuilder));
+                    add(new ParameterDescriptionCommand(annotation, methodBuilder));
                     add(new ErrorDescriptionCommand(annotation, methodBuilder));
                     add(new HttpPostMethodCommand(annotation, methodBuilder, allowedMethods));
                     add(new HttpGetMethodCommand(annotation, methodBuilder, allowedMethods));
@@ -40,12 +58,7 @@ public class DocumentationBuilder {
                     add(new HttpDeleteMethodCommand(annotation, methodBuilder, allowedMethods));
                 }};
 
-                ListIterator<DocumentationBuilderCommand> it = commands.listIterator();
-                DocumentationBuilderCommand command;
-
-                while (it.hasNext()) {
-                    command = it.next();
-
+                for(DocumentationBuilderCommand command : commands) {
                     if (command.execute()) {
                         break;
                     }

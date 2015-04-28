@@ -2,19 +2,20 @@ package net.apetheory.publicise.server.api.documentation;
 
 import flexjson.JSON;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Christoph on 27.04.2015.
  */
 public class MethodDocumentation {
+    private String path;
     private String httpMethod;
     private String description;
     private List<ParameterDocumentation> queryParameter = new ArrayList<>();
     private List<ParameterDocumentation> pathParameter = new ArrayList<>();
     private List<ParameterDocumentation> header = new ArrayList<>();
     private List<ErrorDocumentation> errors = new ArrayList<>();
+    private Set<String> produces = new HashSet<>();
 
     @JSON
     public String getHttpMethod() {
@@ -44,6 +45,16 @@ public class MethodDocumentation {
     @JSON
     public List<ErrorDocumentation> getErrors() {
         return errors;
+    }
+
+    @JSON
+    public String getPath() {
+        return path;
+    }
+
+    @JSON
+    public Set<String> getProduces() {
+        return produces;
     }
 
     static public class Builder {
@@ -83,8 +94,18 @@ public class MethodDocumentation {
             return this;
         }
 
+        public Builder setPath(String path) {
+            documentation.path = path;
+            return this;
+        }
+
         public MethodDocumentation build() {
             return documentation;
+        }
+
+        public Builder addProducesMediaTypes(String[] produces) {
+            Collections.addAll(documentation.produces, produces);
+            return this;
         }
     }
 }
