@@ -5,11 +5,11 @@ import net.apetheory.publicise.server.api.documentation.command.*;
 import javax.ws.rs.HttpMethod;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
- * Created by Christoph on 27.04.2015.
+ * Builder class which generates the
+ * documentation of an API endpoint
  */
 public class DocumentationBuilder {
     private final Class clz;
@@ -19,65 +19,45 @@ public class DocumentationBuilder {
     }
 
     public ResourceDocumentation build() {
-        ResourceDocumentation.Builder resourceDocumentationBuilder = new ResourceDocumentation.Builder();
-        MethodDocumentation.Builder methodDocumentationBuilder;
+        ResourceDocumentation.Builder resourceBuilder = new ResourceDocumentation.Builder();
         Set<String> allowedMethods = new HashSet<>();
 
+        // HEAD and OPTIONS method is allowed by default
         allowedMethods.add(HttpMethod.HEAD);
         allowedMethods.add(HttpMethod.OPTIONS);
 
-        for(Method method : clz.getMethods()) {
-            methodDocumentationBuilder = new MethodDocumentation.Builder();
+        for (Method method : clz.getMethods()) {
+            MethodDocumentation.Builder methodBuilder = new MethodDocumentation.Builder();
+            List<DocumentationBuilderCommand> commands;
 
-            HttpPostCommand httpPostCommand;
-            HttpGetMethodCommand httpGetCommand;
-            HttpPutCommand httpPutCommand;
-            HttpDeleteCommand httpDeleteCommand;
+            for (Annotation annotation : method.getDeclaredAnnotations()) {
+                commands = new ArrayList<DocumentationBuilderCommand>() {{
+                    add(new QueryParameterDescriptionCommand(annotation, methodBuilder));
+                    add(new ErrorDescriptionCommand(annotation, methodBuilder));
+                    add(new HttpPostMethodCommand(annotation, methodBuilder, allowedMethods));
+                    add(new HttpGetMethodCommand(annotation, methodBuilder, allowedMethods));
+                    add(new HttpPutMethodCommand(annotation, methodBuilder, allowedMethods));
+                    add(new HttpDeleteMethodCommand(annotation, methodBuilder, allowedMethods));
+                }};
 
-            QueryParameterDescriptionCommand queryParameterCommand;
-            ErrorDescriptionCommand errorCommand;
+                ListIterator<DocumentationBuilderCommand> it = commands.listIterator();
+                DocumentationBuilderCommand command;
 
-            boolean isHttpMethod = false;
+                while (it.hasNext()) {
+                    command = it.next();
 
-            for(Annotation annotation : method.getDeclaredAnnotations()) {
-                queryParameterCommand = new QueryParameterDescriptionCommand(annotation, methodDocumentationBuilder);
-                errorCommand = new ErrorDescriptionCommand(annotation, methodDocumentationBuilder);
-                httpPostCommand = new HttpPostCommand(annotation, allowedMethods);
-                httpGetCommand = new HttpGetMethodCommand(annotation, allowedMethods);
-                httpPutCommand = new HttpPutCommand(annotation, allowedMethods);
-                httpDeleteCommand = new HttpDeleteCommand(annotation, allowedMethods);
-
-                if(httpDeleteCommand.execute()) {
-                    methodDocumentationBuilder.setHttpMethod(HttpMethod.DELETE);
-                    isHttpMethod = true;
-
-                } else if(httpPutCommand.execute()) {
-                    methodDocumentationBuilder.setHttpMethod(HttpMethod.PUT);
-                    isHttpMethod = true;
-
-                } else if(httpGetCommand.execute()) {
-                    methodDocumentationBuilder.setHttpMethod(HttpMethod.GET);
-                    isHttpMethod = true;
-
-                } else if(httpPostCommand.execute()) {
-                    methodDocumentationBuilder.setHttpMethod(HttpMethod.POST);
-                    isHttpMethod = true;
-
-                } else if(queryParameterCommand.execute()) {
-                    continue;
-
-                } else if(errorCommand.execute()) {
-                    continue;
+                    if (command.execute()) {
+                        break;
+                    }
                 }
             }
 
-            if(isHttpMethod) {
-                resourceDocumentationBuilder
-                        .addMethod(methodDocumentationBuilder.build());
+            if (methodBuilder.isHttpMethod()) {
+                resourceBuilder.addMethod(methodBuilder.build());
             }
         }
 
-        return resourceDocumentationBuilder
+        return resourceBuilder
                 .setAllowedMethods(allowedMethods)
                 .build();
     }

@@ -49,6 +49,10 @@ public class MethodDocumentation {
     static public class Builder {
         private MethodDocumentation documentation = new MethodDocumentation();
 
+        public boolean isHttpMethod() {
+            return documentation.httpMethod != null;
+        }
+
         public Builder setHttpMethod(String httpMethod) {
             documentation.httpMethod = httpMethod;
             return this;
