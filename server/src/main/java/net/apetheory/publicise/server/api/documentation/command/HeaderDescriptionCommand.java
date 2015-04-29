@@ -2,32 +2,34 @@ package net.apetheory.publicise.server.api.documentation.command;
 
 import net.apetheory.publicise.server.api.documentation.MethodDocumentation;
 import net.apetheory.publicise.server.api.documentation.ParameterDocumentation;
-import net.apetheory.publicise.server.api.documentation.meta.HeaderDescription;
 
+import javax.ws.rs.HeaderParam;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 
 /**
  * Created by Christoph on 27.04.2015.
  */
-public class HeaderDescriptionCommand extends MethodDocumentationCommand<HeaderDescription> {
+public class HeaderDescriptionCommand extends MethodDocumentationCommand<HeaderParam> {
 
-    public HeaderDescriptionCommand(Annotation annotation, MethodDocumentation.Builder builder) {
+    private Parameter parameter;
+
+    public HeaderDescriptionCommand(Annotation annotation, MethodDocumentation.Builder builder, Parameter parameter) {
         super(annotation, builder);
+        this.parameter = parameter;
     }
 
     @Override
-    public void execute(HeaderDescription annotation, MethodDocumentation.Builder builder) {
+    public void execute(HeaderParam annotation, MethodDocumentation.Builder builder) {
         builder.addHeader(
                 new ParameterDocumentation.Builder()
-                        .setDescription(annotation.description())
-                        .setIsRequired(annotation.isRequired())
-                        .setName(annotation.name())
-                        .setType(annotation.type())
+                        .setName(annotation.value())
+                        .setType(parameter.getType().getName())
                         .build());
     }
 
     @Override
     public boolean isExpectedAnnotation(Annotation annotation) {
-        return annotation instanceof HeaderDescription;
+        return annotation instanceof HeaderParam;
     }
 }

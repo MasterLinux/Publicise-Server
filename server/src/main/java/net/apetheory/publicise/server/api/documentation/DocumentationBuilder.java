@@ -5,6 +5,7 @@ import net.apetheory.publicise.server.api.documentation.command.*;
 import javax.ws.rs.HttpMethod;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
@@ -27,12 +28,12 @@ public class DocumentationBuilder {
         allowedMethods.add(HttpMethod.OPTIONS);
 
         // add resource documentation
-        for(Annotation annotation : clz.getDeclaredAnnotations()) {
+        for (Annotation annotation : clz.getDeclaredAnnotations()) {
             List<DocumentationBuilderCommand> commands = new ArrayList<DocumentationBuilderCommand>() {{
                 add(new PathDescriptionCommand(annotation, resourceBuilder));
             }};
 
-            for(DocumentationBuilderCommand command : commands) {
+            for (DocumentationBuilderCommand command : commands) {
                 if (command.execute()) {
                     break;
                 }
@@ -44,13 +45,27 @@ public class DocumentationBuilder {
             MethodDocumentation.Builder methodBuilder = new MethodDocumentation.Builder();
             List<DocumentationBuilderCommand> commands;
 
+            // get header and query parameter and path parameter
+            for (Parameter parameter : method.getParameters()) {
+                for (Annotation annotation : parameter.getDeclaredAnnotations()) {
+                    commands = new ArrayList<DocumentationBuilderCommand>() {{
+                        add(new BeanParamDescriptionCommand(annotation, methodBuilder, parameter));
+                        add(new HeaderDescriptionCommand(annotation, methodBuilder, parameter));
+                        add(new QueryParamDescriptionCommand(annotation, methodBuilder, parameter));
+                    }};
+
+                    for (DocumentationBuilderCommand command : commands) {
+                        if (command.execute()) {
+                            break;
+                        }
+                    }
+                }
+            }
+
             for (Annotation annotation : method.getDeclaredAnnotations()) {
                 commands = new ArrayList<DocumentationBuilderCommand>() {{
                     add(new PathDescriptionCommand(annotation, methodBuilder));
                     add(new ProducesDescriptionCommand(annotation, methodBuilder));
-                    add(new HeaderDescriptionCommand(annotation, methodBuilder));
-                    add(new ParametersDescriptionCommand(annotation, methodBuilder));
-                    add(new ParameterDescriptionCommand(annotation, methodBuilder));
                     add(new ErrorDescriptionCommand(annotation, methodBuilder));
                     add(new HttpPostMethodCommand(annotation, methodBuilder, allowedMethods));
                     add(new HttpGetMethodCommand(annotation, methodBuilder, allowedMethods));
@@ -58,7 +73,7 @@ public class DocumentationBuilder {
                     add(new HttpDeleteMethodCommand(annotation, methodBuilder, allowedMethods));
                 }};
 
-                for(DocumentationBuilderCommand command : commands) {
+                for (DocumentationBuilderCommand command : commands) {
                     if (command.execute()) {
                         break;
                     }
