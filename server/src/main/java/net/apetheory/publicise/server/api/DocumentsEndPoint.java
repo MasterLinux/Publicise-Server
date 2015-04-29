@@ -3,7 +3,8 @@ package net.apetheory.publicise.server.api;
 import flexjson.JSONDeserializer;
 import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.api.documentation.meta.Description;
-import net.apetheory.publicise.server.api.documentation.meta.ErrorDescription;
+import net.apetheory.publicise.server.api.documentation.meta.Errors;
+import net.apetheory.publicise.server.api.documentation.meta.Required;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
 import net.apetheory.publicise.server.api.parameter.FieldsParameter;
 import net.apetheory.publicise.server.api.parameter.PaginationParameter;
@@ -68,11 +69,11 @@ public class DocumentsEndPoint extends BaseEndPoint {
     @GET
     @Path("/{id: [0-9a-zA-Z]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    @ErrorDescription({ConnectionError.class})
-    @Description("The ID of the document to get")
+    @Errors({ConnectionError.class})
+    @Description("Gets a specific document by its ID")
     public String getDocumentById(
             @BeanParam PrettyPrintHeader prettyPrint,
-            @PathParam("id") @Description("The ID of the document to get") String id
+            @Required @PathParam("id") @Description("The ID of the document to get") String id
     ) {
         Database db = Database.fromConfig(Config.load("C:/config.json"));
         boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
