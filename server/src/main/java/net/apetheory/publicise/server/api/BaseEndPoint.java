@@ -2,6 +2,8 @@ package net.apetheory.publicise.server.api;
 
 import net.apetheory.publicise.server.api.documentation.DocumentationBuilder;
 import net.apetheory.publicise.server.api.documentation.ResourceDocumentation;
+import net.apetheory.publicise.server.api.documentation.data.model.ResourceModel;
+import net.apetheory.publicise.server.api.documentation.data.reader.ResourceReader;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
 
 import javax.ws.rs.BeanParam;
@@ -21,6 +23,8 @@ public abstract class BaseEndPoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOptions(@BeanParam PrettyPrintHeader prettyPrint) {
         ResourceDocumentation documentation = new DocumentationBuilder(this.getClass()).build();
+
+        ResourceModel resource = new ResourceReader(this.getClass()).read();
 
         return Response.ok()
                 .allow(documentation.getAllowedMethods())
