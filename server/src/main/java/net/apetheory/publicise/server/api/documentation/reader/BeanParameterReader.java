@@ -1,7 +1,7 @@
 package net.apetheory.publicise.server.api.documentation.reader;
 
 import net.apetheory.publicise.server.api.documentation.command.Command;
-import net.apetheory.publicise.server.api.documentation.model.ApiEndpointModel;
+import net.apetheory.publicise.server.api.documentation.model.ParameterModel;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -12,22 +12,27 @@ import java.lang.reflect.Parameter;
  */
 public class BeanParameterReader extends ParameterReader {
 
-    public BeanParameterReader(Parameter parameter, ApiEndpointModel model) {
+    public BeanParameterReader(Parameter parameter) {
+        super(parameter);
+    }
+
+    public BeanParameterReader(Parameter parameter, ParameterModel model) {
         super(parameter, model);
     }
 
     @Override
-    public ApiEndpointModel read() {
+    public ParameterModel read() {
         Class beanParam = getAnnotatedElement().getType();
-        ApiEndpointModel model = getModel();
+        ParameterModel model = getModel();
 
         for(Constructor constructor : beanParam.getConstructors()) {
             for(Parameter parameter : constructor.getParameters()) {
                 for(Annotation annotation: parameter.getDeclaredAnnotations()) {
-                    for (Command<Parameter, ApiEndpointModel> command : getCommands()) {
+                    for (Command<Parameter, ParameterModel> command : getCommands()) {
 
                         if (command.canExecute(annotation)) {
                             command.execute(parameter, annotation, model);
+                            break;
                         }
                     }
                 }

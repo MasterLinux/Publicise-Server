@@ -41,6 +41,7 @@ public class AnnotationReader<TElement extends AnnotatedElement, TModel> impleme
             for (Command<TElement, TModel> command : commands) {
                 if (command.canExecute(annotation)) {
                     command.execute(annotatedElement, annotation, model);
+                    break;
                 }
             }
         }

@@ -10,6 +10,7 @@ public class ParameterModel implements Descriptable {
     private String type;
     private String description;
     private boolean isRequired;
+    private ParameterType parameterType = ParameterType.Unknown;
 
     @JSON
     public String getName() {
@@ -47,5 +48,18 @@ public class ParameterModel implements Descriptable {
 
     public void setIsRequired(boolean isRequired) {
         this.isRequired = isRequired;
+    }
+
+    @JSON(include = false)
+    public ParameterType getParameterType() {
+        return parameterType;
+    }
+
+    public void setParameterType(ParameterType parameterType) {
+        this.parameterType = parameterType;
+    }
+
+    public enum ParameterType {
+        Unknown, Header, Path, Query
     }
 }

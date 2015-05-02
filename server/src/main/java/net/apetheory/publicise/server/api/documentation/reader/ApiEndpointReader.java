@@ -2,6 +2,7 @@ package net.apetheory.publicise.server.api.documentation.reader;
 
 import net.apetheory.publicise.server.api.documentation.command.*;
 import net.apetheory.publicise.server.api.documentation.model.ApiEndpointModel;
+import net.apetheory.publicise.server.api.documentation.model.ParameterModel;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -32,8 +33,20 @@ public class ApiEndpointReader extends AnnotationReader<Method, ApiEndpointModel
 
         // get each parameter and header of this endpoint
         for(Parameter parameter : method.getParameters()) {
-            parameterReader = new ParameterReader(parameter, endpoint);
-            parameterReader.read();
+            parameterReader = new ParameterReader(parameter);
+            ParameterModel model = parameterReader.read();
+
+            switch (model.getParameterType()) {
+                case Header:
+                    endpoint.addHeader(model);
+                    break;
+                case Query:
+                    endpoint.addQueryParameter(model);
+                    break;
+                case Path:
+                    endpoint.addPathParameter(model);
+                    break;
+            }
         }
 
         return endpoint;
