@@ -1,6 +1,6 @@
 package net.apetheory.publicise.server.api.documentation.command;
 
-import net.apetheory.publicise.server.api.documentation.model.EndpointModel;
+import net.apetheory.publicise.server.api.documentation.model.ApiEndpointModel;
 import net.apetheory.publicise.server.api.documentation.model.ErrorModel;
 import net.apetheory.publicise.server.api.documentation.meta.Errors;
 import net.apetheory.publicise.server.data.ApiError;
@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 /**
  * Created by Christoph on 01.05.2015.
  */
-public class ReadErrorsCommand implements Command<Method, EndpointModel> {
+public class ReadErrorsCommand implements Command<Method, ApiEndpointModel> {
 
     @Override
     public boolean canExecute(Annotation annotation) {
@@ -19,14 +19,14 @@ public class ReadErrorsCommand implements Command<Method, EndpointModel> {
     }
 
     @Override
-    public void execute(Method element, Annotation annotation, EndpointModel endpointModel) {
+    public void execute(Method element, Annotation annotation, ApiEndpointModel apiEndpointModel) {
         try {
             for (Class errorClass : ((Errors) annotation).value()) {
                 ErrorModel errorModel;
 
                 if (ApiError.class.isInstance(errorClass.newInstance())
                         && (errorModel = createError(errorClass)) != null) {
-                    endpointModel.addError(errorModel);
+                    apiEndpointModel.addError(errorModel);
                 }
             }
         } catch (InstantiationException | IllegalAccessException e) {

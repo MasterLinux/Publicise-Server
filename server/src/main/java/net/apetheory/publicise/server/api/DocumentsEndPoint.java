@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 @Path("/documents")
+@Description("API endpoint used to manage documents")
 public class DocumentsEndPoint extends BaseEndPoint {
 
     /**

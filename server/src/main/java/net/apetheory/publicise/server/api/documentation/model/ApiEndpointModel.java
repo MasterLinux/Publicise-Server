@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Created by Christoph on 27.04.2015.
  */
-public class EndpointModel implements PathModel {
+public class ApiEndpointModel implements PathModel, Descriptable {
     private String path;
     private String httpMethod;
     private String description;
@@ -23,6 +23,7 @@ public class EndpointModel implements PathModel {
     }
 
     @JSON
+    @Override
     public String getDescription() {
         return description;
     }
@@ -48,6 +49,7 @@ public class EndpointModel implements PathModel {
     }
 
     @JSON
+    @Override
     public String getPath() {
         return path;
     }
@@ -77,6 +79,7 @@ public class EndpointModel implements PathModel {
         Collections.addAll(this.produces, produces);
     }
 
+    @Override
     public void setPath(String path) {
         this.path = path;
     }
@@ -85,6 +88,7 @@ public class EndpointModel implements PathModel {
         this.httpMethod = httpMethod;
     }
 
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }

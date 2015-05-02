@@ -1,7 +1,7 @@
 package net.apetheory.publicise.server.api.documentation.reader;
 
 import net.apetheory.publicise.server.api.documentation.command.*;
-import net.apetheory.publicise.server.api.documentation.model.EndpointModel;
+import net.apetheory.publicise.server.api.documentation.model.ApiEndpointModel;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -9,10 +9,10 @@ import java.lang.reflect.Parameter;
 /**
  * Created by Christoph on 01.05.2015.
  */
-public class EndpointReader extends AnnotationReader<Method, EndpointModel> {
+public class ApiEndpointReader extends AnnotationReader<Method, ApiEndpointModel> {
 
-    public EndpointReader(Method annotatedMethod) {
-        super(annotatedMethod, new EndpointModel());
+    public ApiEndpointReader(Method annotatedMethod) {
+        super(annotatedMethod, new ApiEndpointModel());
 
         addCommand(new ReadPathCommand<>());
         addCommand(new ReadProducesCommand());
@@ -21,11 +21,12 @@ public class EndpointReader extends AnnotationReader<Method, EndpointModel> {
         addCommand(new ReadHttpMethodPutCommand());
         addCommand(new ReadHttpMethodPostCommand());
         addCommand(new ReadHttpMethodDeleteCommand());
+        addCommand(new ReadDescriptionCommand<>());
     }
 
     @Override
-    public EndpointModel read() {
-        EndpointModel endpoint = super.read();
+    public ApiEndpointModel read() {
+        ApiEndpointModel endpoint = super.read();
         Method method = getAnnotatedElement();
         ParameterReader parameterReader;
 

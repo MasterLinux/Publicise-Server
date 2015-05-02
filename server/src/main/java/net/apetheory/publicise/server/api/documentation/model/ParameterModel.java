@@ -5,7 +5,7 @@ import flexjson.JSON;
 /**
  * Created by Christoph on 27.04.2015.
  */
-public class ParameterModel {
+public class ParameterModel implements Descriptable {
     private String name;
     private String type;
     private String description;
@@ -22,6 +22,7 @@ public class ParameterModel {
     }
 
     @JSON
+    @Override
     public String getDescription() {
         return description;
     }
@@ -39,6 +40,7 @@ public class ParameterModel {
         this.type = type;
     }
 
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }

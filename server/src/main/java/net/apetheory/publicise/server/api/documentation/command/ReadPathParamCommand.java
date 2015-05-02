@@ -1,6 +1,7 @@
 package net.apetheory.publicise.server.api.documentation.command;
 
-import net.apetheory.publicise.server.api.documentation.model.EndpointModel;
+import net.apetheory.publicise.server.api.documentation.converter.TypeConverter;
+import net.apetheory.publicise.server.api.documentation.model.ApiEndpointModel;
 import net.apetheory.publicise.server.api.documentation.model.ParameterModel;
 
 import javax.ws.rs.PathParam;
@@ -10,17 +11,17 @@ import java.lang.reflect.Parameter;
 /**
  * Created by Christoph on 02.05.2015.
  */
-public class ReadPathParamCommand implements Command<Parameter, EndpointModel> {
+public class ReadPathParamCommand implements Command<Parameter, ApiEndpointModel> {
     @Override
     public boolean canExecute(Annotation annotation) {
         return annotation instanceof PathParam;
     }
 
     @Override
-    public void execute(Parameter element, Annotation annotation, EndpointModel model) {
+    public void execute(Parameter element, Annotation annotation, ApiEndpointModel model) {
         ParameterModel parameter = new ParameterModel();   //TODO add description & isRequired
         parameter.setName(((PathParam)annotation).value());
-        parameter.setType(element.getType().getName());
+        parameter.setType(TypeConverter.getJsonType(element));
 
         model.addPathParameter(parameter);
     }

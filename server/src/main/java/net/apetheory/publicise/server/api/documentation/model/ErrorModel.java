@@ -5,7 +5,7 @@ import flexjson.JSON;
 /**
  * Created by Christoph on 27.04.2015.
  */
-public class ErrorModel {
+public class ErrorModel implements Descriptable {
     private int errorCode;
     private int statusCode;
     private String errorName;
@@ -27,6 +27,7 @@ public class ErrorModel {
     }
 
     @JSON
+    @Override
     public String getDescription() {
         return description;
     }
@@ -43,6 +44,7 @@ public class ErrorModel {
         this.errorName = errorName;
     }
 
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }
