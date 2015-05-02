@@ -16,6 +16,7 @@ public class ApiEndpointModel implements PathModel, Descriptable {
     private List<ParameterModel> header = new ArrayList<>();
     private List<ErrorModel> errors = new ArrayList<>();
     private Set<String> produces = new HashSet<>();
+    private Set<String> consumes = new HashSet<>();
 
     @JSON
     public String getHttpMethod() {
@@ -91,5 +92,14 @@ public class ApiEndpointModel implements PathModel, Descriptable {
     @Override
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void addConsumesMediaTypes(String[] consumes) {
+        Collections.addAll(this.consumes, consumes);
+    }
+
+    @JSON
+    public Set<String> getConsumes() {
+        return consumes;
     }
 }

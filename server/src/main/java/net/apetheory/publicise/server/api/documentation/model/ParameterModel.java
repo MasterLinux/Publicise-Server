@@ -11,6 +11,7 @@ public class ParameterModel implements Descriptable {
     private String description;
     private boolean isRequired;
     private ParameterType parameterType = ParameterType.Unknown;
+    private String defaultValue;
 
     @JSON
     public String getName() {
@@ -57,6 +58,15 @@ public class ParameterModel implements Descriptable {
 
     public void setParameterType(ParameterType parameterType) {
         this.parameterType = parameterType;
+    }
+
+    @JSON
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     public enum ParameterType {

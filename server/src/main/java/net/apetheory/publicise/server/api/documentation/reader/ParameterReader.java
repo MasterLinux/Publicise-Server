@@ -19,6 +19,7 @@ public class ParameterReader extends AnnotationReader<Parameter, ParameterModel>
         addCommand(new ReadBeanParamCommand());
         addCommand(new ReadDescriptionCommand<>());
         addCommand(new ReadRequiredCommand());
+        addCommand(new ReadDefaultValueCommand());
     }
 
     public ParameterReader(Parameter annotatedElement) {

@@ -17,6 +17,7 @@ public class ApiEndpointReader extends AnnotationReader<Method, ApiEndpointModel
 
         addCommand(new ReadPathCommand<>());
         addCommand(new ReadProducesCommand());
+        addCommand(new ReadConsumesCommand());
         addCommand(new ReadErrorsCommand());
         addCommand(new ReadHttpMethodGetCommand());
         addCommand(new ReadHttpMethodPutCommand());
