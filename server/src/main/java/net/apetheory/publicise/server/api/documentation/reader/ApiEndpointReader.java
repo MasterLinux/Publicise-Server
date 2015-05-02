@@ -30,6 +30,7 @@ public class ApiEndpointReader extends AnnotationReader<Method, ApiEndpointModel
     public ApiEndpointModel read() {
         ApiEndpointModel endpoint = super.read();
         Method method = getAnnotatedElement();
+        BeanParameterReader beanParameterReader;
         ParameterReader parameterReader;
 
         // get each parameter and header of this endpoint
@@ -37,19 +38,33 @@ public class ApiEndpointReader extends AnnotationReader<Method, ApiEndpointModel
             parameterReader = new ParameterReader(parameter);
             ParameterModel model = parameterReader.read();
 
-            switch (model.getParameterType()) {
-                case Header:
-                    endpoint.addHeader(model);
-                    break;
-                case Query:
-                    endpoint.addQueryParameter(model);
-                    break;
-                case Path:
-                    endpoint.addPathParameter(model);
-                    break;
+            // handle bean parameter
+            if(model.getIsBeanParameter()) {
+                beanParameterReader = new BeanParameterReader(parameter);
+                beanParameterReader.setOnReadListener((beanParameter) -> {
+                    addParameter(endpoint, beanParameter);
+                });
+
+                beanParameterReader.read();
+            } else {
+                addParameter(endpoint, model);
             }
         }
 
         return endpoint;
+    }
+
+    private void addParameter(ApiEndpointModel endpoint, ParameterModel model) {
+        switch (model.getParameterType()) {
+            case Header:
+                endpoint.addHeader(model);
+                break;
+            case Query:
+                endpoint.addQueryParameter(model);
+                break;
+            case Path:
+                endpoint.addPathParameter(model);
+                break;
+        }
     }
 }

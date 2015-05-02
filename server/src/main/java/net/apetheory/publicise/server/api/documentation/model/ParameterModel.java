@@ -10,6 +10,7 @@ public class ParameterModel implements Descriptable {
     private String type;
     private String description;
     private boolean isRequired;
+    private boolean isBeanParameter;
     private ParameterType parameterType = ParameterType.Unknown;
     private String defaultValue;
 
@@ -58,6 +59,15 @@ public class ParameterModel implements Descriptable {
 
     public void setParameterType(ParameterType parameterType) {
         this.parameterType = parameterType;
+    }
+
+    @JSON(include = false)
+    public boolean getIsBeanParameter() {
+        return isBeanParameter;
+    }
+
+    public void setIsBeanParameter(boolean isBeanParameter) {
+        this.isBeanParameter = isBeanParameter;
     }
 
     @JSON

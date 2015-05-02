@@ -1,7 +1,6 @@
 package net.apetheory.publicise.server.api.documentation.command;
 
 import net.apetheory.publicise.server.api.documentation.model.ParameterModel;
-import net.apetheory.publicise.server.api.documentation.reader.BeanParameterReader;
 
 import javax.ws.rs.BeanParam;
 import java.lang.annotation.Annotation;
@@ -19,6 +18,6 @@ public class ReadBeanParamCommand implements Command<Parameter, ParameterModel> 
 
     @Override
     public void execute(Parameter element, Annotation annotation, ParameterModel model) {
-        new BeanParameterReader(element, model).read();
+        model.setIsBeanParameter(true);
     }
 }
