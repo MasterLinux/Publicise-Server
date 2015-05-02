@@ -1,12 +1,11 @@
 package net.apetheory.publicise.server.api.documentation.converter;
 
 import flexjson.JSONSerializer;
+import net.apetheory.publicise.server.api.documentation.model.DocumentationModel;
 import net.apetheory.publicise.server.api.documentation.model.ResourceModel;
 
-/**
- * Created by Christoph on 02.05.2015.
- */
 public class JsonConverter {
+
     /**
      * Converts a resource documentation model into its JSON representation
      *
@@ -14,6 +13,16 @@ public class JsonConverter {
      * @return A JSON formatted String representing the resource documentation
      */
     public static String toJSON(ResourceModel value, boolean prettyPrint) {
+        return toJson(value, prettyPrint);
+    }
+
+    /**
+     * Converts a documentation model into its JSON representation
+     *
+     * @param value The documentation model to convert
+     * @return A JSON formatted String representing the documentation
+     */
+    public static String toJSON(DocumentationModel value, boolean prettyPrint) {
         return toJson(value, prettyPrint);
     }
 

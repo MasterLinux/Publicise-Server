@@ -31,10 +31,6 @@ public class AnnotationReader<TElement extends AnnotatedElement, TModel> impleme
         return model;
     }
 
-    public ArrayList<Command<TElement, TModel>> getCommands() {
-        return commands;
-    }
-
     @Override
     public TModel read() {
         for (Annotation annotation : annotatedElement.getDeclaredAnnotations()) {
