@@ -1,6 +1,7 @@
 package net.apetheory.publicise.server.api;
 
 import net.apetheory.publicise.server.api.documentation.converter.JsonConverter;
+import net.apetheory.publicise.server.api.documentation.meta.Description;
 import net.apetheory.publicise.server.api.error.ResourceUnavailableError;
 import net.apetheory.publicise.server.api.documentation.meta.Errors;
 import net.apetheory.publicise.server.api.documentation.model.DocumentationModel;
@@ -18,11 +19,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/docs")
+@Description("Resource which is used to provide the api documentation as web-page")
 public class DocumentationEndPoint {
 
     @OPTIONS
     @ManagedAsync
     @Produces(MediaType.APPLICATION_JSON)
+    @Description("Gets the documentation in its JSON representation")
     public void getOptions(
             @Suspended AsyncResponse response,
             @BeanParam PrettyPrintHeader prettyPrint
@@ -42,6 +45,7 @@ public class DocumentationEndPoint {
     @ManagedAsync
     @Errors(ResourceUnavailableError.class)
     @Produces(MediaType.TEXT_HTML)
+    @Description("Gets the documentation in its HTML representation")
     public void getDocumentation(
             @Suspended AsyncResponse response,
             @BeanParam PrettyPrintHeader prettyPrint
