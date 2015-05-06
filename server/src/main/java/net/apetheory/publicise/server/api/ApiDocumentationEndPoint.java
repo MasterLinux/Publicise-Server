@@ -2,13 +2,13 @@ package net.apetheory.publicise.server.api;
 
 import net.apetheory.publicise.server.api.documentation.converter.JsonConverter;
 import net.apetheory.publicise.server.api.documentation.meta.Description;
-import net.apetheory.publicise.server.api.error.ResourceUnavailableError;
 import net.apetheory.publicise.server.api.documentation.meta.Errors;
 import net.apetheory.publicise.server.api.documentation.model.DocumentationModel;
 import net.apetheory.publicise.server.api.documentation.reader.DocumentationReader;
+import net.apetheory.publicise.server.api.error.ResourceUnavailableError;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
 import net.apetheory.publicise.server.data.ApiErrorException;
-import net.apetheory.publicise.server.data.ResourceFileReader;
+import net.apetheory.publicise.server.data.template.HtmlTemplate;
 import net.apetheory.publicise.server.data.utility.StringUtils;
 import org.glassfish.jersey.server.ManagedAsync;
 
@@ -18,9 +18,9 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/docs")
+@Path("/api")
 @Description("Resource which is used to provide the api documentation as web-page")
-public class DocumentationEndPoint {
+public class ApiDocumentationEndPoint {
 
     @OPTIONS
     @ManagedAsync
@@ -31,7 +31,7 @@ public class DocumentationEndPoint {
             @BeanParam PrettyPrintHeader prettyPrint
     ) {
         DocumentationModel documentation = new DocumentationReader(
-                DocumentationEndPoint.class,
+                ApiDocumentationEndPoint.class,
                 DocumentsEndPoint.class
         ).read();
 
@@ -50,7 +50,12 @@ public class DocumentationEndPoint {
             @Suspended AsyncResponse response,
             @BeanParam PrettyPrintHeader prettyPrint
     ) {
-        String html = new ResourceFileReader("documentation.html").read();
+        DocumentationModel documentation = new DocumentationReader(
+                ApiDocumentationEndPoint.class,
+                DocumentsEndPoint.class
+        ).read();
+
+        String html = new HtmlTemplate().parse("documentation", documentation);
 
         if (StringUtils.isNullOrEmpty(html)) {
             response.resume(new ApiErrorException(new ResourceUnavailableError(), prettyPrint.isPrettyPrinted()));
