@@ -1,0 +1,26 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="endpoint-list (endpoints)">
+    <ul>
+        <li th:each="endpoint : ${endpoints}">
+            <div th:class="Endpoint">
+                <h2 th:text="${resource.path} + (*{endpoint.path}?: '')"></h2>
+                <div th:text="${endpoint.httpMethod}"></div>
+                <div th:text="${endpoint.description}"></div>
+
+                <div th:replace="parameter :: parameter-list ('Header', ${endpoint.header})"></div>
+                <div th:replace="parameter :: parameter-list ('Path parameter', ${endpoint.pathParameter})"></div>
+                <div th:replace="parameter :: parameter-list ('Query parameter', ${endpoint.queryParameter})"></div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+</body>
+
+</html>

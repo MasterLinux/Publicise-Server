@@ -1,0 +1,29 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="parameter-list (title, parameters)"
+     th:switch="${#lists.isEmpty(parameters)}"
+     th:class="ParameterList">
+
+    <h2 th:text="${title}"></h2>
+    <ul th:case="false">
+        <li th:each="parameter : ${parameters}">
+            <div th:class="Parameter">
+                <div th:text="${parameter.name}"></div>
+                <div th:text="${parameter.type}"></div>
+                <div th:text="${parameter.defaultValue}"></div>
+                <div th:text="${parameter.description}"></div>
+                <div th:text="'Is Required? ' + (${parameter.isRequired} ? 'yes' : 'no')"></div>
+            </div>
+        </li>
+    </ul>
+    <div th:case="true">No parameters</div>
+</div>
+
+</body>
+
+</html>

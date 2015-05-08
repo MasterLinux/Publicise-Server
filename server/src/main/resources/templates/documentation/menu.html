@@ -5,7 +5,7 @@
 
 <body>
 
-<ul th:fragment="resource-list (resources)">
+<ul th:fragment="resource-menu (resources)">
     <li th:each="resource : ${resources}">
        <a th:href="${#strings.replace(resource.path,'/','#')}" th:text="${resource.path}"></a>
     </li>

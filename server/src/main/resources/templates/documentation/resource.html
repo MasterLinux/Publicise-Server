@@ -1,0 +1,38 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="allowed-method-list (title, allowedMethods)"
+     th:switch="${#arrays.isEmpty(allowedMethods)}"
+     th:class="AllowedMethodsList">
+
+    <h2 th:text="${title}"></h2>
+    <ul th:case="false">
+        <li th:each="method : ${allowedMethods}" th:text="${method}"></li>
+    </ul>
+    <div th:case="true">No allowed methods</div>
+</div>
+
+<div th:fragment="resource-list (resources)">
+    <ul>
+        <li th:each="resource : ${resources}">
+            <div th:class="Resource">
+                <a th:name="${#strings.replace(resource.path,'/','')}"></a>
+
+                <h1 th:text="${resource.path}"></h1>
+
+                <div th:text="${resource.description}"></div>
+                <div th:replace="resource :: allowed-method-list ('Allowed methods', ${resource.allowedMethods})"></div>
+                <div th:replace="endpoint :: endpoint-list (${resource.endpoints})"></div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+</body>
+
+</html>

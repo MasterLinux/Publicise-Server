@@ -17,12 +17,12 @@ import java.io.Writer;
 public class HtmlTemplate {
     private final TemplateEngine templateEngine;
 
-    public HtmlTemplate() {
+    public HtmlTemplate(String prefix) {
         TemplateResolver templateResolver = new TemplateResolver() {{
             setResourceResolver(new ClassLoaderResourceResolver());
             setTemplateMode("HTML5");
             setCacheTTLMs(3600000L);
-            setPrefix("templates/");
+            setPrefix("templates/" + prefix);
             setSuffix(".html");
         }};
 

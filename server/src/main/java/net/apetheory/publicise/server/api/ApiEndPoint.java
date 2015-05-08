@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response;
 
 @Path("/api")
 @Description("Resource which is used to provide the api documentation as web-page")
-public class ApiDocumentationEndPoint {
+public class ApiEndPoint {
 
     @OPTIONS
     @ManagedAsync
@@ -31,7 +31,7 @@ public class ApiDocumentationEndPoint {
             @BeanParam PrettyPrintHeader prettyPrint
     ) {
         DocumentationModel documentation = new DocumentationReader(
-                ApiDocumentationEndPoint.class,
+                ApiEndPoint.class,
                 DocumentsEndPoint.class
         ).read();
 
@@ -51,11 +51,11 @@ public class ApiDocumentationEndPoint {
             @BeanParam PrettyPrintHeader prettyPrint
     ) {
         DocumentationModel documentation = new DocumentationReader(
-                ApiDocumentationEndPoint.class,
+                ApiEndPoint.class,
                 DocumentsEndPoint.class
         ).read();
 
-        String html = new HtmlTemplate().parse("documentation", documentation);
+        String html = new HtmlTemplate("documentation/").parse("documentation", documentation);
 
         if (StringUtils.isNullOrEmpty(html)) {
             response.resume(new ApiErrorException(new ResourceUnavailableError(), prettyPrint.isPrettyPrinted()));
