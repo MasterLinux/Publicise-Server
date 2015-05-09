@@ -25,7 +25,7 @@
                 <div th:text="${endpoint.httpMethod}"></div>
                 <div th:text="${endpoint.description}"></div>
 
-                <div th:replace="parameter :: parameter-list ('Header', ${endpoint.header})"></div>
+                <div th:replace="parameter :: parameter-list (#{endpoint.header.title}, ${endpoint.header})"></div>
                 <div th:replace="parameter :: parameter-list ('Path parameter', ${endpoint.pathParameter})"></div>
                 <div th:replace="parameter :: parameter-list ('Query parameter', ${endpoint.queryParameter})"></div>
                 <div th:replace="error :: error-list ('Errors', ${endpoint.errors})"></div>

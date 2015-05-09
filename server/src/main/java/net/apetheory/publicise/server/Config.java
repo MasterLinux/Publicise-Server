@@ -40,7 +40,7 @@ public class Config {
             String json = readConfigFromFS(configFilePath);
 
             if(json != null) {
-                //TODO use new ResourceFileReader("documentation.html").read() to load config from resources
+                //TODO use new ResourceFileReader("documentation.html").readFile() to load config from resources
                 //TODO log custom config is loaded
                 //TODO handle exceptions
                 ConfigModel config = new JSONDeserializer<ConfigModel>().deserialize(json, ConfigModel.class);

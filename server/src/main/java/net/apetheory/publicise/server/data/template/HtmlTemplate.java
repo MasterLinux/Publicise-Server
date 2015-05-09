@@ -1,8 +1,12 @@
 package net.apetheory.publicise.server.data.template;
 
+import net.apetheory.publicise.server.data.ResourceFileReader;
 import org.jetbrains.annotations.Nullable;
+import org.thymeleaf.Arguments;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.messageresolver.IMessageResolver;
+import org.thymeleaf.messageresolver.MessageResolution;
 import org.thymeleaf.resourceresolver.ClassLoaderResourceResolver;
 import org.thymeleaf.templateresolver.TemplateResolver;
 
@@ -10,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Properties;
 
 /**
  * Created by Christoph on 06.05.2015.
@@ -26,11 +31,12 @@ public class HtmlTemplate {
             setSuffix(".html");
         }};
 
+        IMessageResolver messageResolver = new MessageResolver("templates/" + prefix + "Messages.properties");
+
         templateEngine = new TemplateEngine() {{
             setTemplateResolver(templateResolver);
+            setMessageResolver(messageResolver);
         }};
-
-
     }
 
     @Nullable
@@ -56,5 +62,43 @@ public class HtmlTemplate {
         }
 
         return out;
+    }
+
+    public static class MessageResolver implements IMessageResolver {
+        private boolean isInitialized;
+        private final String path;
+
+        public MessageResolver(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public String getName() {
+            return "HTML_TEMPLATE_MESSAGE_RESOLVER";
+        }
+
+        @Override
+        public Integer getOrder() {
+            return 0;
+        }
+
+        @Override
+        public MessageResolution resolveMessage(Arguments arguments, String key, Object[] messageParameters) {
+            Properties properties = ResourceFileReader.readProperties(path);
+            MessageResolution resolution = null;
+
+            if(properties != null && properties.containsKey(key)) {
+                resolution = new MessageResolution(properties.getProperty(key));   //TODO use messageParameters
+            }
+
+            return resolution;
+        }
+
+        @Override
+        public void initialize() {
+            if(!isInitialized) {
+                isInitialized = true;
+            }
+        }
     }
 }
