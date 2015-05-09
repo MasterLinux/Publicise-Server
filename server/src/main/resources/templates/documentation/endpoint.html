@@ -5,6 +5,18 @@
 
 <body>
 
+<div th:fragment="string-list (title, entries)"
+     th:switch="${#sets.isEmpty(entries)}">
+
+    <h2 th:text="${title}"></h2>
+    <ul th:case="false">
+        <li th:each="entry : ${entries}">
+            <div th:class="ListEntry" th:text="${entry}"></div>
+        </li>
+    </ul>
+    <div th:case="true">No entries</div>
+</div>
+
 <div th:fragment="endpoint-list (endpoints)">
     <ul>
         <li th:each="endpoint : ${endpoints}">
@@ -16,6 +28,9 @@
                 <div th:replace="parameter :: parameter-list ('Header', ${endpoint.header})"></div>
                 <div th:replace="parameter :: parameter-list ('Path parameter', ${endpoint.pathParameter})"></div>
                 <div th:replace="parameter :: parameter-list ('Query parameter', ${endpoint.queryParameter})"></div>
+                <div th:replace="error :: error-list ('Errors', ${endpoint.errors})"></div>
+                <div th:replace="endpoint :: string-list ('Produces', ${endpoint.produces})"></div>
+                <div th:replace="endpoint :: string-list ('Consumes', ${endpoint.consumes})"></div>
             </div>
         </li>
     </ul>
