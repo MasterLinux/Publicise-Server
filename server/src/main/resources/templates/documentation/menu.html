@@ -5,11 +5,14 @@
 
 <body>
 
-<ul th:fragment="resource-menu (resources)">
-    <li th:each="resource : ${resources}">
-       <a th:href="${#strings.replace(resource.path,'/','#')}" th:text="${resource.path}"></a>
-    </li>
-</ul>
+<div th:fragment="resource-menu (resources)">
+    <ul th:class="side-nav">
+        <li th:class="heading" th:text="#{menu.title}"></li>
+        <li th:each="resource : ${resources}">
+            <a th:href="${#strings.replace(resource.path,'/','#')}" th:text="${resource.path}"></a>
+        </li>
+    </ul>
+</div>
 
 </body>
 
