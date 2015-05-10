@@ -15,6 +15,7 @@
             <div th:case="GET" th:text="${method}" th:class="'label success'"></div>
             <div th:case="DELETE" th:text="${method}" th:class="'label alert'"></div>
             <div th:case="PUT" th:text="${method}" th:class="'label info'"></div>
+            <div th:case="OPTIONS" th:text="${method}" th:class="'label warning'"></div>
             <div th:case="POST" th:text="${method}" th:class="'label'"></div>
             <div th:case="*" th:text="${method}" th:class="'label secondary'"></div>
         </li>
