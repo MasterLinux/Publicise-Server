@@ -1,0 +1,12 @@
+.resource-list {
+    list-style: none;
+}
+
+.resource .header {
+    border-bottom: 1px solid #222222;
+    margin-bottom: 15px;
+}
+
+.allowed-method-list .inline-list li:first-child {
+    margin-left: 0;
+}
