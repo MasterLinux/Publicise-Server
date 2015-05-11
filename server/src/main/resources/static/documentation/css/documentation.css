@@ -1,5 +1,6 @@
 .resource-list {
     list-style: none;
+    margin: 0;
 }
 
 .resource .header {
@@ -10,3 +11,56 @@
 .allowed-method-list .inline-list li:first-child {
     margin-left: 0;
 }
+
+.endpoint-list {
+    list-style: none;
+    margin: 0;
+}
+
+.endpoint {
+    padding: 15px;
+    background: #d8d8d8;
+    margin-bottom: 15px;
+}
+
+.endpoint .inline-list.header li {
+    margin-right: 5px;
+    margin-left: 0;
+    padding: 0;
+}
+
+.endpoint .inline-list.header li .label {
+    font-size: 25px;
+    margin-bottom: 5px;
+}
+
+.label.none {
+    background: none;
+    color: #222222;
+}
+
+.string-list .inline-list li:first-child {
+    margin-left: 0;
+}
+
+.parameter-list {
+    margin-bottom: 30px;
+}
+
+.parameter-list .row {
+    margin: 0;
+}
+
+.parameter-list ul {
+    list-style: none;
+    margin: 0;
+}
+
+.parameter-list .title-bar {
+    background: #F5F5F5;
+    margin-bottom: 15px;
+}
+
+
+
+

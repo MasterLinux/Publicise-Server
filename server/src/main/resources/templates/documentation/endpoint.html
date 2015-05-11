@@ -5,32 +5,56 @@
 
 <body>
 
-<div th:fragment="string-list (title, entries)"
-     th:switch="${#sets.isEmpty(entries)}">
+<div th:fragment="media-type-list (title, entries)">
+    <div th:class="string-list">
 
-    <h2 th:text="${title}"></h2>
-    <ul th:case="false">
-        <li th:each="entry : ${entries}">
-            <div th:class="ListEntry" th:text="${entry}"></div>
-        </li>
-    </ul>
-    <div th:case="true">No entries</div>
+        <h4 th:text="${title}"></h4>
+
+        <ul th:switch="${#sets.isEmpty(entries)}" th:class="inline-list">
+            <li th:case="false" th:each="entry : ${entries}">
+                <div th:class="'label info'" th:text="${entry}"></div>
+            </li>
+            <li>
+                <div th:case="true"
+                     th:text="#{mediatype.no_mediatypes}"
+                     th:class="'label secondary'"></div>
+            </li>
+        </ul>
+    </div>
 </div>
 
 <div th:fragment="endpoint-list (endpoints)">
-    <ul>
+    <ul th:class="endpoint-list">
         <li th:each="endpoint : ${endpoints}">
-            <div th:class="Endpoint">
-                <h2 th:text="${resource.path} + (*{endpoint.path}?: '')"></h2>
-                <div th:text="${endpoint.httpMethod}"></div>
-                <div th:text="${endpoint.description}"></div>
+            <div th:class="endpoint">
 
-                <div th:replace="parameter :: parameter-list (#{endpoint.header.title}, ${endpoint.header})"></div>
-                <div th:replace="parameter :: parameter-list ('Path parameter', ${endpoint.pathParameter})"></div>
-                <div th:replace="parameter :: parameter-list ('Query parameter', ${endpoint.queryParameter})"></div>
-                <div th:replace="error :: error-list ('Errors', ${endpoint.errors})"></div>
-                <div th:replace="endpoint :: string-list ('Produces', ${endpoint.produces})"></div>
-                <div th:replace="endpoint :: string-list ('Consumes', ${endpoint.consumes})"></div>
+                <ul th:class="'inline-list header'">
+                    <li th:switch="${endpoint.httpMethod}">
+                        <div th:case="GET" th:text="${endpoint.httpMethod}" th:class="'label success'"></div>
+                        <div th:case="DELETE" th:text="${endpoint.httpMethod}" th:class="'label alert'"></div>
+                        <div th:case="PUT" th:text="${endpoint.httpMethod}" th:class="'label info'"></div>
+                        <div th:case="OPTIONS" th:text="${endpoint.httpMethod}" th:class="'label warning'"></div>
+                        <div th:case="POST" th:text="${endpoint.httpMethod}" th:class="'label'"></div>
+                        <div th:case="*" th:text="${endpoint.httpMethod}" th:class="'label secondary'"></div>
+                    </li>
+                    <li>
+                        <div th:text="${resource.path} + (*{endpoint.path}?: '')" th:class="'label none'"></div>
+                    </li>
+                </ul>
+
+                <blockquote th:text="*{endpoint.description}?: #{default.no_description}"></blockquote>
+
+                <div th:class="row">
+                    <div th:include="endpoint :: media-type-list (#{endpoint.consumes_title}, ${endpoint.consumes})"
+                         th:class="'small-12 medium-6 column'"></div>
+                    <div th:include="endpoint :: media-type-list (#{endpoint.produces_title}, ${endpoint.produces})"
+                         th:class="'small-12 medium-6 column'"></div>
+                </div>
+
+                <div th:replace="parameter :: parameter-list (#{endpoint.path_parameter_title}, ${endpoint.pathParameter})"></div>
+                <div th:replace="parameter :: parameter-list (#{endpoint.query_parameter_title}, ${endpoint.queryParameter})"></div>
+                <div th:replace="parameter :: parameter-list (#{endpoint.header_title}, ${endpoint.header})"></div>
+                <div th:replace="error :: error-list (#{endpoint.errors_title}, ${endpoint.errors})"></div>
             </div>
         </li>
     </ul>
