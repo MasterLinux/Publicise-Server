@@ -7,20 +7,36 @@
 
 <div th:fragment="error-list (title, errors)"
      th:switch="${#lists.isEmpty(errors)}"
-     th:class="ParameterList">
+     th:class="error-list">
 
-    <h2 th:text="${title}"></h2>
-    <ul th:case="false">
-        <li th:each="error : ${errors}">
-            <div th:class="Error">
-                <div th:text="${error.errorName}"></div>
-                <div th:text="${error.description}"></div>
-                <div th:text="${error.errorCode}"></div>
-                <div th:text="${error.statusCode}"></div>
-            </div>
-        </li>
-    </ul>
-    <div th:case="true">No parameters</div>
+    <h5 th:text="${title}" th:class="header"></h5>
+
+    <div th:case="false">
+        <div th:class="'row title-bar'">
+            <div th:text="#{error.errorName}"
+                 th:class="'medium-6 large-6 column'"></div>
+            <div th:text="#{error.errorCode}"
+                 th:class="'medium-3 large-3 column'"></div>
+            <div th:text="#{error.statusCode}"
+                 th:class="'medium-3 large-3 column'"></div>
+        </div>
+
+        <ul>
+            <li th:each="error : ${errors}">
+                <div th:class="row">
+                    <div th:text="${error.errorName}"
+                         th:class="'medium-6 large-6 column'"></div>
+                    <div th:text="${error.errorCode}"
+                         th:class="'medium-3 large-3 column'"></div>
+                    <div th:text="${error.statusCode}"
+                         th:class="'medium-3 large-3 column'"></div>
+                </div>
+                <blockquote th:text="${error.description}"></blockquote>
+            </li>
+        </ul>
+    </div>
+
+    <div th:case="true" th:text="#{error.no_errors}"></div>
 </div>
 
 </body>
