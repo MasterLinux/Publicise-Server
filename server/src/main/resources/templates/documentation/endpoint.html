@@ -8,11 +8,16 @@
 <div th:fragment="media-type-list (title, entries)">
     <div th:class="string-list">
 
-        <h4 th:text="${title}"></h4>
+        <h5 th:text="${title}"></h5>
 
-        <ul th:switch="${#sets.isEmpty(entries)}" th:class="inline-list">
-            <li th:case="false" th:each="entry : ${entries}">
-                <div th:class="'label info'" th:text="${entry}"></div>
+        <ul th:switch="${#sets.isEmpty(entries)}"
+            th:class="inline-list">
+
+            <li th:case="false"
+                th:each="entry : ${entries}">
+
+                <div th:class="'label info'"
+                     th:text="${entry}"></div>
             </li>
             <li>
                 <div th:case="true"
@@ -30,15 +35,22 @@
 
                 <ul th:class="'inline-list header'">
                     <li th:switch="${endpoint.httpMethod}">
-                        <div th:case="GET" th:text="${endpoint.httpMethod}" th:class="'label success'"></div>
-                        <div th:case="DELETE" th:text="${endpoint.httpMethod}" th:class="'label alert'"></div>
-                        <div th:case="PUT" th:text="${endpoint.httpMethod}" th:class="'label info'"></div>
-                        <div th:case="OPTIONS" th:text="${endpoint.httpMethod}" th:class="'label warning'"></div>
-                        <div th:case="POST" th:text="${endpoint.httpMethod}" th:class="'label'"></div>
-                        <div th:case="*" th:text="${endpoint.httpMethod}" th:class="'label secondary'"></div>
+                        <div th:case="GET" th:text="${endpoint.httpMethod}"
+                             th:class="'label success'"></div>
+                        <div th:case="DELETE" th:text="${endpoint.httpMethod}"
+                             th:class="'label alert'"></div>
+                        <div th:case="PUT" th:text="${endpoint.httpMethod}"
+                             th:class="'label info'"></div>
+                        <div th:case="OPTIONS" th:text="${endpoint.httpMethod}"
+                             th:class="'label warning'"></div>
+                        <div th:case="POST" th:text="${endpoint.httpMethod}"
+                             th:class="'label'"></div>
+                        <div th:case="*" th:text="${endpoint.httpMethod}"
+                             th:class="'label secondary'"></div>
                     </li>
                     <li>
-                        <div th:text="${resource.path} + (*{endpoint.path}?: '')" th:class="'label none'"></div>
+                        <div th:text="${resource.path} + (*{endpoint.path}?: '')"
+                             th:class="'label none'"></div>
                     </li>
                 </ul>
 

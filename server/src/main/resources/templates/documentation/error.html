@@ -9,7 +9,7 @@
      th:switch="${#lists.isEmpty(errors)}"
      th:class="error-list">
 
-    <h5 th:text="${title}" th:class="header"></h5>
+    <h5 th:text="${title}" th:class="'error-header' + (${#lists.isEmpty(errors)} ? ' empty' : '')"></h5>
 
     <div th:case="false">
         <div th:class="'row title-bar'">

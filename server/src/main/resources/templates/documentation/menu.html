@@ -6,7 +6,7 @@
 <body>
 
 <div th:fragment="resource-menu (resources)">
-    <ul th:class="side-nav">
+    <ul th:class="'side-nav resource-menu'">
         <li th:class="heading" th:text="#{menu.title}"></li>
         <li th:each="resource : ${resources}">
             <a th:href="${#strings.replace(resource.path,'/','#')}" th:text="${resource.path}"></a>

@@ -1,10 +1,14 @@
+.resource-menu {
+
+}
+
 .resource-list {
     list-style: none;
     margin: 0;
 }
 
 .resource .header {
-    border-bottom: 1px solid #222222;
+    border-bottom: 1px solid #2c2c2c;
     margin-bottom: 15px;
 }
 
@@ -18,8 +22,8 @@
 }
 
 .endpoint {
-    padding: 15px;
-    background: #d8d8d8;
+    padding: 10px;
+    background: #efefef;
     margin-bottom: 15px;
 }
 
@@ -36,11 +40,21 @@
 
 .label.none {
     background: none;
-    color: #222222;
+    color: #2c2c2c;
 }
 
 .string-list .inline-list li:first-child {
     margin-left: 0;
+}
+
+.error-header,
+.parameter-header {
+    border-bottom: 1px solid #2c2c2c;
+    margin-bottom: 0;
+}
+.error-header.empty,
+.parameter-header.empty {
+    margin-bottom: 5px;
 }
 
 .error-list,
@@ -61,7 +75,8 @@
 
 .error-list .title-bar,
 .parameter-list .title-bar {
-    background: #F5F5F5;
+    background: #2c2c2c;
+    color: #efefef;
     margin-bottom: 15px;
 }
 
