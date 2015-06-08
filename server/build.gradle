@@ -10,7 +10,7 @@ repositories {
     mavenCentral()
     //maven {
     //    url: "http://apetheory.net:8081/nexus/content/groups/private"
-   // }
+    //}
 }
 
 uploadArchives {
@@ -18,6 +18,11 @@ uploadArchives {
         mavenDeployer {
             snapshotRepository(url: "http://apetheory.net:8081/nexus/content/repositories/apetheory-snapshots") {
                 authentication(userName: apetheoryUsername, password: apetheoryPassword)
+            }
+            mavenDeployer {
+                repository(url: "http://apetheory.net:8081/nexus/content/repositories/apetheory") {
+                    authentication(userName: apetheoryUsername, password: apetheoryPassword)
+                }
             }
         }
     }
