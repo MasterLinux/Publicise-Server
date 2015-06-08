@@ -1,10 +1,26 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
 sourceCompatibility = 1.8
-version = '1.0'
+
+group = 'net.apetheory'
+version = '0.1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    //maven {
+    //    url: "http://apetheory.net:8081/nexus/content/groups/private"
+   // }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            snapshotRepository(url: "http://apetheory.net:8081/nexus/content/repositories/apetheory-snapshots") {
+                authentication(userName: apetheoryUsername, password: apetheoryPassword)
+            }
+        }
+    }
 }
 
 dependencies {
