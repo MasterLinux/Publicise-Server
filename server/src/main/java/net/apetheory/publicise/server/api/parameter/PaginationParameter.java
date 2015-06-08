@@ -4,7 +4,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
 /**
- * Created by Christoph on 19.09.2014.
+ * Parameter-Set required for pagination
  */
 public class PaginationParameter {
     public static final String DEFAULT_LIMIT = "20";

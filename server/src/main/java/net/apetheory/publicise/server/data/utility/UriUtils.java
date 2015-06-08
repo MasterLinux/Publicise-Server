@@ -89,7 +89,7 @@ public class UriUtils {
             List<String> values = queryParameters.get(parameterName);
             String value = values.size() > 0 ? values.get(0) : null;
 
-            if (!StringUtils.isEmpty(value)) {
+            if (!StringUtils.isNullOrEmpty(value)) {
                 try {
                     limit = Integer.parseInt(value);
                 } catch (NumberFormatException ignored) {
@@ -109,7 +109,7 @@ public class UriUtils {
      * @return true if it is valid, false otherwise
      */
     public static boolean isQueryParameterValid(String name, List<String> value, String... excludes) {
-        boolean isExcluded = StringUtils.isEmpty(name);
+        boolean isExcluded = StringUtils.isNullOrEmpty(name);
 
         if (!isExcluded) {
             for (String exclude : excludes) {
@@ -121,6 +121,6 @@ public class UriUtils {
         }
 
         return !isExcluded && value != null && value.size() > 0 &&
-                !StringUtils.isEmpty(value.get(0));
+                !StringUtils.isNullOrEmpty(value.get(0));
     }
 }

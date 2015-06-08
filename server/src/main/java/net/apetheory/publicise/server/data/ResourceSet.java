@@ -3,7 +3,6 @@ package net.apetheory.publicise.server.data;
 import net.apetheory.publicise.server.data.converter.JsonConverter;
 import net.apetheory.publicise.server.data.utility.UriUtils;
 import net.apetheory.publicise.server.resource.BaseResource;
-import net.apetheory.publicise.server.resource.MetaModel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.ws.rs.core.UriInfo;
@@ -15,12 +14,12 @@ import java.util.List;
  */
 public class ResourceSet<TResource extends BaseResource> {
     private List<TResource> objects;
-    private MetaModel meta;
+    private Meta meta;
 
     public static final int DEFAULT_OFFSET = 0;
     public static final int DEFAULT_LIMIT = 10;
 
-    private ResourceSet(List<TResource> objects, MetaModel meta) {
+    private ResourceSet(List<TResource> objects, Meta meta) {
         this.objects = objects;
         this.meta = meta;
     }
@@ -29,20 +28,28 @@ public class ResourceSet<TResource extends BaseResource> {
         return objects;
     }
 
-    public MetaModel getMeta() {
+    public Meta getMeta() {
         return meta;
     }
 
     /**
-     * Serializes this resource set to a JSON formatted string
-     * @return This resource set as JSON formatted string
+     * Converts the resource set to a JSON formatted string
+     * @return The resource set in its JSON representation
      */
     public String toJson() {
-        return toJson(new String[]{});
+        return toJson(new String[]{}, true);
+    }
+
+    public String toJson(boolean prettyPrint) {
+        return toJson(new String[]{}, prettyPrint);
     }
 
     public String toJson(@NotNull String[] fields) {
-        return JsonConverter.toJSON(this, fields);
+        return toJson(fields, true);
+    }
+
+    public String toJson(@NotNull String[] fields, boolean prettyPrint) {
+        return JsonConverter.toJSON(this, fields, prettyPrint);
     }
 
     /**
@@ -52,7 +59,7 @@ public class ResourceSet<TResource extends BaseResource> {
 
         private List<TResource> objects;
         private UriInfo uriInfo;
-        private MetaModel meta;
+        private Meta meta;
 
         /**
          * Initializes the ResourceSet builder
@@ -61,7 +68,7 @@ public class ResourceSet<TResource extends BaseResource> {
         public Builder(long totalCount) {
             objects = new ArrayList<>();
 
-            meta = new MetaModel();
+            meta = new Meta();
             meta.setTotalCount(totalCount);
             meta.setLimit(DEFAULT_LIMIT);
             meta.setOffset(DEFAULT_OFFSET);
@@ -124,13 +131,16 @@ public class ResourceSet<TResource extends BaseResource> {
             return this;
         }
 
+        public Builder<TResource> setFilteredCount(long filteredCount) {
+            meta.setFilteredCount(filteredCount);
+            return this;
+        }
+
         /**
          * Builds the ResourceSet
          * @return The ResourceSet
          */
         public ResourceSet<TResource> build() {
-            meta.setFilteredCount(objects.size());
-
             if(uriInfo != null) {
                 setPrev(meta, uriInfo);
                 setNext(meta, uriInfo);
@@ -143,7 +153,7 @@ public class ResourceSet<TResource extends BaseResource> {
          * Sets the URI which points to the previous
          * result set of resources
          */
-        private void setPrev(MetaModel meta, UriInfo uriInfo) {
+        private void setPrev(Meta meta, UriInfo uriInfo) {
             if (meta.getOffset() > 0) {
                 meta.setPrev(UriUtils.buildUriPath(UriType.Previous, uriInfo));
             }
@@ -153,11 +163,72 @@ public class ResourceSet<TResource extends BaseResource> {
          * Sets the URI which points to the next
          * result set of resources
          */
-        private void setNext(MetaModel meta, UriInfo uriInfo) {
+        private void setNext(Meta meta, UriInfo uriInfo) {
             long rest = meta.getTotalCount() - meta.getLimit() * (meta.getOffset() + 1);
             if(rest > 0) {
                 meta.setNext(UriUtils.buildUriPath(UriType.Next, uriInfo));
             }
+        }
+    }
+
+    /**
+     * Model which contains each meta information
+     * of the requested resource.
+     */
+    public static class Meta {
+        private int limit;
+        private int offset;
+        private long filteredCount;
+        private long totalCount;
+        private String next;
+        private String prev;
+
+        public int getLimit() {
+            return limit;
+        }
+
+        public void setLimit(int limit) {
+            this.limit = limit;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
+
+        public long getFilteredCount() {
+            return filteredCount;
+        }
+
+        public void setFilteredCount(long filteredCount) {
+            this.filteredCount = filteredCount;
+        }
+
+        public long getTotalCount() {
+            return totalCount;
+        }
+
+        public void setTotalCount(long totalCount) {
+            this.totalCount = totalCount;
+        }
+
+        public String getNext() {
+            return next;
+        }
+
+        public void setNext(String next) {
+            this.next = next;
+        }
+
+        public String getPrev() {
+            return prev;
+        }
+
+        public void setPrev(String prev) {
+            this.prev = prev;
         }
     }
 }

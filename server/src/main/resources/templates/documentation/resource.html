@@ -1,0 +1,46 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="allowed-method-list (title, allowedMethods)"
+     th:switch="${#arrays.isEmpty(allowedMethods)}"
+     th:class="allowed-method-list">
+
+    <h4 th:text="${title}"></h4>
+
+    <ul th:case="false" th:class="inline-list">
+        <li th:each="method : ${allowedMethods}" th:switch="${method}">
+            <div th:case="GET" th:text="${method}" th:class="'label success'"></div>
+            <div th:case="DELETE" th:text="${method}" th:class="'label alert'"></div>
+            <div th:case="PUT" th:text="${method}" th:class="'label info'"></div>
+            <div th:case="OPTIONS" th:text="${method}" th:class="'label warning'"></div>
+            <div th:case="POST" th:text="${method}" th:class="'label'"></div>
+            <div th:case="*" th:text="${method}" th:class="'label secondary'"></div>
+        </li>
+    </ul>
+
+    <div th:case="true" th:text="#{resource.no_allowed_methods}"></div>
+</div>
+
+<div th:fragment="resource-list (resources)">
+    <ul th:class="resource-list">
+        <li th:each="resource : ${resources}">
+            <div th:class="resource">
+                <a th:name="${#strings.replace(resource.path,'/','')}"></a>
+
+                <h1 th:text="${resource.path}" th:class="header"></h1>
+
+                <blockquote th:text="${resource.description}"></blockquote>
+                <div th:replace="resource :: allowed-method-list (#{resource.allowed_methods}, ${resource.allowedMethods})"></div>
+                <div th:replace="endpoint :: endpoint-list (${resource.endpoints})"></div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+</body>
+
+</html>

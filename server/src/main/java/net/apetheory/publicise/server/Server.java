@@ -1,5 +1,6 @@
 package net.apetheory.publicise.server;
 
+import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -18,11 +19,17 @@ public class Server {
     public Server(URI uri) {
         this.uri = uri;
 
-        //create server
+        // create server
         server = GrizzlyHttpServerFactory.createHttpServer(
                 this.uri,
                 new ResourceConfig()
                         .packages("net.apetheory.publicise.server.api")
+        );
+
+        // make static content available via <base_url>/web/
+        server.getServerConfiguration().addHttpHandler(
+                new CLStaticHttpHandler(HttpServer.class.getClassLoader(), "/static/"),
+                "/web"
         );
     }
 
@@ -40,8 +47,6 @@ public class Server {
      */
     public void start() throws IOException {
         server.start();
-
-
     }
 
     /**

@@ -1,0 +1,48 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="parameter-list (title, parameters)"
+     th:switch="${#lists.isEmpty(parameters)}"
+     th:class="parameter-list">
+
+    <h5 th:text="${title}" th:class="'parameter-header' + (${#lists.isEmpty(parameters)} ? ' empty' : '')"></h5>
+
+    <div th:case="false">
+        <div th:class="'row title-bar'">
+            <div th:text="#{parameter.name}"
+                 th:class="'medium-3 large-3 column'"></div>
+            <div th:text="#{parameter.type}"
+                 th:class="'medium-3 large-3 column'"></div>
+            <div th:text="#{parameter.default_value}"
+                 th:class="'medium-3 large-3 column'"></div>
+            <div th:text="#{parameter.is_required}"
+                 th:class="'medium-3 large-3 column'"></div>
+        </div>
+
+        <ul>
+            <li th:each="parameter : ${parameters}">
+                <div th:class="row">
+                    <div th:text="${parameter.name}"
+                         th:class="'medium-3 large-3 column'"></div>
+                    <div th:text="${parameter.type}"
+                         th:class="'medium-3 large-3 column'"></div>
+                    <div th:text="*{parameter.defaultValue}?: #{parameter.no_default_value}"
+                         th:class="'medium-3 large-3 column'"></div>
+                    <div th:text="${parameter.isRequired} ? #{parameter.is_required_yes} : #{parameter.is_required_no}"
+                         th:class="'medium-3 large-3 column'"></div>
+                </div>
+                <blockquote th:text="*{parameter.description}?: #{default.no_description}"></blockquote>
+            </li>
+        </ul>
+    </div>
+
+    <div th:case="true">No parameters</div>
+</div>
+
+</body>
+
+</html>

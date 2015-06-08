@@ -1,0 +1,85 @@
+.resource-menu {
+
+}
+
+.resource-list {
+    list-style: none;
+    margin: 0;
+}
+
+.resource .header {
+    border-bottom: 1px solid #2c2c2c;
+    margin-bottom: 15px;
+}
+
+.allowed-method-list .inline-list li:first-child {
+    margin-left: 0;
+}
+
+.endpoint-list {
+    list-style: none;
+    margin: 0;
+}
+
+.endpoint {
+    padding: 10px;
+    background: #efefef;
+    margin-bottom: 15px;
+}
+
+.endpoint .inline-list.header li {
+    margin-right: 5px;
+    margin-left: 0;
+    padding: 0;
+}
+
+.endpoint .inline-list.header li .label {
+    font-size: 25px;
+    margin-bottom: 5px;
+}
+
+.label.none {
+    background: none;
+    color: #2c2c2c;
+}
+
+.string-list .inline-list li:first-child {
+    margin-left: 0;
+}
+
+.error-header,
+.parameter-header {
+    border-bottom: 1px solid #2c2c2c;
+    margin-bottom: 0;
+}
+.error-header.empty,
+.parameter-header.empty {
+    margin-bottom: 5px;
+}
+
+.error-list,
+.parameter-list {
+    margin-bottom: 30px;
+}
+
+.error-list .row,
+.parameter-list .row {
+    margin: 0;
+}
+
+.error-list ul,
+.parameter-list ul {
+    list-style: none;
+    margin: 0;
+}
+
+.error-list .title-bar,
+.parameter-list .title-bar {
+    background: #2c2c2c;
+    color: #efefef;
+    margin-bottom: 15px;
+}
+
+
+
+

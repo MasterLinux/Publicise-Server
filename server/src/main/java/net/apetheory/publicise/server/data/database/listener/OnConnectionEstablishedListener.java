@@ -1,7 +1,8 @@
 package net.apetheory.publicise.server.data.database.listener;
 
-import com.mongodb.DBCollection;
+import com.mongodb.client.MongoCollection;
 import net.apetheory.publicise.server.data.ResourceSet;
+import org.bson.Document;
 
 /**
  * Listener used to notify a listener that the
@@ -16,5 +17,5 @@ public interface OnConnectionEstablishedListener {
      * @param collection The collection to insert, etc data
      * @return The ResourceSet or null
      */
-    ResourceSet onEstablished(DBCollection collection);
+    ResourceSet onEstablished(MongoCollection<Document> collection);
 }

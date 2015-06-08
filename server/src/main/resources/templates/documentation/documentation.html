@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="Documentation"></title>
+    <link rel="stylesheet" type="text/css" media="all" href="/web/documentation/libs/foundation/css/foundation.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="/web/documentation/css/documentation.css"/>
+    <script src="/web/documentation/libs/foundation/js/vendor/modernizr.js"></script>
+</head>
+
+<body>
+
+<div th:class="row">
+    <div th:include="menu :: resource-menu (${dataContext.resources})" th:class="'large-3 medium-3 columns'"></div>
+    <div th:include="resource :: resource-list (${dataContext.resources})" th:class="'large-9 medium-9 columns'"></div>
+</div>
+
+</body>
+</html>

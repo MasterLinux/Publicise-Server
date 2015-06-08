@@ -1,0 +1,77 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="media-type-list (title, entries)">
+    <div th:class="string-list">
+
+        <h5 th:text="${title}"></h5>
+
+        <ul th:switch="${#sets.isEmpty(entries)}"
+            th:class="inline-list">
+
+            <li th:case="false"
+                th:each="entry : ${entries}">
+
+                <div th:class="'label info'"
+                     th:text="${entry}"></div>
+            </li>
+            <li>
+                <div th:case="true"
+                     th:text="#{mediatype.no_mediatypes}"
+                     th:class="'label secondary'"></div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div th:fragment="endpoint-list (endpoints)">
+    <ul th:class="endpoint-list">
+        <li th:each="endpoint : ${endpoints}">
+            <div th:class="endpoint">
+
+                <ul th:class="'inline-list header'">
+                    <li th:switch="${endpoint.httpMethod}">
+                        <div th:case="GET" th:text="${endpoint.httpMethod}"
+                             th:class="'label success'"></div>
+                        <div th:case="DELETE" th:text="${endpoint.httpMethod}"
+                             th:class="'label alert'"></div>
+                        <div th:case="PUT" th:text="${endpoint.httpMethod}"
+                             th:class="'label info'"></div>
+                        <div th:case="OPTIONS" th:text="${endpoint.httpMethod}"
+                             th:class="'label warning'"></div>
+                        <div th:case="POST" th:text="${endpoint.httpMethod}"
+                             th:class="'label'"></div>
+                        <div th:case="*" th:text="${endpoint.httpMethod}"
+                             th:class="'label secondary'"></div>
+                    </li>
+                    <li>
+                        <div th:text="${resource.path} + (*{endpoint.path}?: '')"
+                             th:class="'label none'"></div>
+                    </li>
+                </ul>
+
+                <blockquote th:text="*{endpoint.description}?: #{default.no_description}"></blockquote>
+
+                <div th:class="row">
+                    <div th:include="endpoint :: media-type-list (#{endpoint.consumes_title}, ${endpoint.consumes})"
+                         th:class="'small-12 medium-6 column'"></div>
+                    <div th:include="endpoint :: media-type-list (#{endpoint.produces_title}, ${endpoint.produces})"
+                         th:class="'small-12 medium-6 column'"></div>
+                </div>
+
+                <div th:replace="parameter :: parameter-list (#{endpoint.path_parameter_title}, ${endpoint.pathParameter})"></div>
+                <div th:replace="parameter :: parameter-list (#{endpoint.query_parameter_title}, ${endpoint.queryParameter})"></div>
+                <div th:replace="parameter :: parameter-list (#{endpoint.header_title}, ${endpoint.header})"></div>
+                <div th:replace="error :: error-list (#{endpoint.errors_title}, ${endpoint.errors})"></div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+</body>
+
+</html>

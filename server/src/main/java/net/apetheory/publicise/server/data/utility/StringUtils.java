@@ -12,7 +12,7 @@ public class StringUtils {
      * @param s The String to test
      * @return true if it is empty or null, false otherwise
      */
-    public static boolean isEmpty(String s) {
+    public static boolean isNullOrEmpty(String s) {
         return s == null || s.length() == 0;
     }
 
