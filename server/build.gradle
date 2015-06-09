@@ -8,9 +8,6 @@ version = '0.1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
-    //maven {
-    //    url: "http://apetheory.net:8081/nexus/content/groups/private"
-    //}
 }
 
 uploadArchives {
