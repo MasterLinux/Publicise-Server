@@ -32,7 +32,7 @@ public class ApiEndPoint {
     ) {
         DocumentationModel documentation = new DocumentationReader(
                 ApiEndPoint.class,
-                DocumentsEndPoint.class
+                UsersEndPoint.class
         ).read();
 
         response.resume(Response.ok()
@@ -52,7 +52,7 @@ public class ApiEndPoint {
     ) {
         DocumentationModel documentation = new DocumentationReader(
                 ApiEndPoint.class,
-                DocumentsEndPoint.class
+                UsersEndPoint.class
         ).read();
 
         String html = new HtmlTemplate("documentation/").parse("documentation", documentation);

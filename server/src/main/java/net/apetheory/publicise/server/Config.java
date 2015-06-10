@@ -1,6 +1,7 @@
 package net.apetheory.publicise.server;
 
 import flexjson.JSONDeserializer;
+import net.apetheory.publicise.server.data.ResourceFileReader;
 import net.apetheory.publicise.server.model.ConfigModel;
 
 import java.io.BufferedReader;
@@ -37,7 +38,7 @@ public class Config {
         configFilePath = configFilePath != null ? configFilePath : DEFAULT_CONFIG_FILE_PATH;
 
         if(instance == null) {
-            String json = readConfigFromFS(configFilePath);
+            String json = ResourceFileReader.readFile(configFilePath);
 
             if(json != null) {
                 //TODO use new ResourceFileReader("documentation.html").readFile() to load config from resources
@@ -52,6 +53,14 @@ public class Config {
         }
 
         return instance;
+    }
+
+    /**
+     * Loads the default config as singleton instance
+     * @return The default config
+     */
+    public synchronized static Config load() {
+        return load(null);
     }
 
     /**

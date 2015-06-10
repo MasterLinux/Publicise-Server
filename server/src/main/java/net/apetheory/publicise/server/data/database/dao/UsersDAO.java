@@ -7,7 +7,7 @@ import net.apetheory.publicise.server.data.converter.DocumentConverter;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.error.InsertionError;
 import net.apetheory.publicise.server.data.database.listener.OnTransactionErrorListener;
-import net.apetheory.publicise.server.resource.DocumentResource;
+import net.apetheory.publicise.server.resource.UserResource;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -17,20 +17,20 @@ import static com.mongodb.client.model.Filters.eq;
 
 /**
  * Data access object which is used to insert,
- * update, delete and get documents
+ * update, delete and get users
  */
-public class DocumentsDAO {
+public class UsersDAO {
 
     /**
-     * Inserts a new document into the database
+     * Inserts a new user into the database
      *
-     * @param database The database to insert the new document
-     * @param document The document resource to insert
+     * @param database The database to insert the new user
+     * @param user The user resource to insert
      * @param errorListener A listener which is called if an error is occurred during the transaction
      */
-    public static ResourceSet insertInto(Database database, DocumentResource document, OnTransactionErrorListener errorListener) {
-        return database.connect(Database.Collection.Documents, (collection) -> {
-            Document dbObj = DocumentConverter.toDocument(document);
+    public static ResourceSet insertInto(Database database, UserResource user, OnTransactionErrorListener errorListener) {
+        return database.connect(Database.Collection.Users, (collection) -> {
+            Document dbObj = DocumentConverter.toDocument(user);
 
             try {
                 collection.insertOne(dbObj);
@@ -42,11 +42,11 @@ public class DocumentsDAO {
                 return null;
             }
 
-            document.setId(dbObj.getObjectId("_id").toString());
+            user.setId(dbObj.getObjectId("_id").toString());
 
             return new ResourceSet
-                    .Builder<DocumentResource>(collection.count())
-                    .addResource(document)
+                    .Builder<UserResource>(collection.count())
+                    .addResource(user)
                     .build();
 
         }, (error) -> {
@@ -56,18 +56,18 @@ public class DocumentsDAO {
         }).disconnect().getResult();
     }
 
-    public static ResourceSet getByIdFrom(Database database, String documentId, OnTransactionErrorListener errorListener) {
-        return database.connect(Database.Collection.Documents, (collection) -> {
-            if(ObjectId.isValid(documentId)) {
-                ObjectId id = new ObjectId(documentId);
+    public static ResourceSet getByIdFrom(Database database, String userId, OnTransactionErrorListener errorListener) {
+        return database.connect(Database.Collection.Users, (collection) -> {
+            if(ObjectId.isValid(userId)) {
+                ObjectId id = new ObjectId(userId);
 
                 Document result = collection.find(eq("_id", id)).first();
 
                 if(result != null) {
-                    DocumentResource resource = DocumentConverter.toResource(DocumentResource.class, result);
+                    UserResource resource = DocumentConverter.toResource(UserResource.class, result);
 
                     return new ResourceSet
-                            .Builder<DocumentResource>(collection.count())
+                            .Builder<UserResource>(collection.count())
                             .setFilteredCount(1)
                             .addResource(resource)
                             .build();
@@ -84,14 +84,14 @@ public class DocumentsDAO {
     }
 
     public static ResourceSet getFrom(Database database, UriInfo uriInfo, int offset, int limit, OnTransactionErrorListener errorListener) {
-        return database.connect(Database.Collection.Documents, (collection) -> {
+        return database.connect(Database.Collection.Users, (collection) -> {
             MongoCursor<Document> resultSet;
 
             long count = collection.count();
             int startIdx = limit * offset;
 
-            ResourceSet.Builder<DocumentResource> builder =
-                    new ResourceSet.Builder<DocumentResource>(count)
+            ResourceSet.Builder<UserResource> builder =
+                    new ResourceSet.Builder<UserResource>(count)
                         .setFilteredCount(count)
                         .setUriInfo(uriInfo)
                         .setOffset(offset)
@@ -101,7 +101,7 @@ public class DocumentsDAO {
                 resultSet = collection.find().skip(startIdx).limit(limit).iterator();
 
                 while (resultSet.hasNext()) {
-                    builder.addResource(DocumentConverter.toResource(DocumentResource.class, resultSet.next()));
+                    builder.addResource(DocumentConverter.toResource(UserResource.class, resultSet.next()));
                 }
             }
 

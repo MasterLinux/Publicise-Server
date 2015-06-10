@@ -44,6 +44,15 @@ public class Database {
     }
 
     /**
+     * Creates a new database configured by the default config
+     * @return The new database instance
+     */
+    public static Database fromConfig() {
+        Config config = Config.load();
+        return fromConfig(config);
+    }
+
+    /**
      * Connects to the database
      *
      * @param collection The collection to get after the connection is established
@@ -96,7 +105,7 @@ public class Database {
      * All available database collections
      */
     public enum Collection {
-        Documents("Documents");
+        Users("Users");
         private final String name;
 
         Collection(String name) {
