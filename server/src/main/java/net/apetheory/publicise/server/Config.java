@@ -19,6 +19,7 @@ public class Config {
     private static final String DEFAULT_CONFIG_FILE_PATH = "./config.json";
     private static final int DATABASE_DEFAULT_PORT = 27017;
     private static final String DATABASE_DEFAULT_HOST = "localhost";
+    private static final String DATABASE_DEFAULT_NAME = "$$_DEFAULT_DB_$$";
 
     private Config() {
         config = new ConfigModel();
@@ -79,6 +80,10 @@ public class Config {
         return config.getDatabase() != null ? config.getDatabase().getHost() : DATABASE_DEFAULT_HOST;
     }
 
+    public String getDatabaseName() {
+        return config.getDatabase() != null ? config.getDatabase().getName() : DATABASE_DEFAULT_NAME;
+    }
+
     /**
      * Reads the config from file system
      *
@@ -106,6 +111,4 @@ public class Config {
 
         return result;
     }
-
-
 }

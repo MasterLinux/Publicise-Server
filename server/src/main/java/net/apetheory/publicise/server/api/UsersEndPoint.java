@@ -11,7 +11,10 @@ import net.apetheory.publicise.server.data.ApiErrorException;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.dao.UsersDAO;
-import net.apetheory.publicise.server.data.database.error.ConnectionError;
+import net.apetheory.publicise.server.api.error.DatabaseConnectionError;
+import net.apetheory.publicise.server.api.error.DatabaseInsertionError;
+import net.apetheory.publicise.server.data.database.exception.ConnectionException;
+import net.apetheory.publicise.server.data.database.exception.InsertionException;
 import net.apetheory.publicise.server.resource.UserResource;
 
 import javax.ws.rs.*;
@@ -50,13 +53,18 @@ public class UsersEndPoint extends BaseEndPoint {
     @Description("Creates a new user")
     public String createUser(@BeanParam PrettyPrintHeader prettyPrint, String body) {
         boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
+        ResourceSet result;
 
         UserResource resource = new JSONDeserializer<UserResource>()
                     .deserialize(body, UserResource.class);
 
-        ResourceSet result = UsersDAO.insertInto(Database.fromConfig(), resource, (error) -> {
-            throw new ApiErrorException(error, isPrettyPrinted);
-        });
+        try {
+            result = UsersDAO.insertInto(Database.fromConfig(), resource);
+        } catch (InsertionException e) {
+            throw new ApiErrorException(new DatabaseInsertionError(), isPrettyPrinted);
+        } catch (ConnectionException e) {
+            throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
+        }
 
         return result != null ? result.toJson(isPrettyPrinted) : null;
     }
@@ -70,17 +78,20 @@ public class UsersEndPoint extends BaseEndPoint {
     @GET
     @Path("/{id: [0-9a-zA-Z]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Errors({ConnectionError.class})
+    @Errors({DatabaseConnectionError.class})
     @Description("Gets a specific user by its ID")
     public String getUserById(
             @BeanParam PrettyPrintHeader prettyPrint,
             @Required @PathParam("id") @Description("The ID of the user to get") String id
     ) {
         boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
+        ResourceSet result;
 
-        ResourceSet result = UsersDAO.getByIdFrom(Database.fromConfig(), id, (error) -> {
-            throw new ApiErrorException(error, isPrettyPrinted);
-        });
+        try {
+            result = UsersDAO.getByIdFrom(Database.fromConfig(), id);
+        } catch (ConnectionException e) {
+            throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
+        }
 
         return result != null ? result.toJson(isPrettyPrinted) : null;
     }
@@ -100,10 +111,13 @@ public class UsersEndPoint extends BaseEndPoint {
             @Context UriInfo uriInfo
     ) {
         boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
+        ResourceSet result;
 
-        ResourceSet result = UsersDAO.getFrom(Database.fromConfig(), uriInfo, pagination.getOffset(), pagination.getLimit(), (error) -> {
-            throw new ApiErrorException(error, isPrettyPrinted);
-        });
+        try {
+            result = UsersDAO.getFrom(Database.fromConfig(), uriInfo, pagination.getOffset(), pagination.getLimit());
+        } catch (ConnectionException e) {
+            throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
+        }
 
         return result != null ? result.toJson(fields.getFields(), isPrettyPrinted) : null;
     }

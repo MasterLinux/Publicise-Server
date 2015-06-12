@@ -5,6 +5,7 @@ package net.apetheory.publicise.server.model;
  */
 public class DatabaseConfigModel {
     private String host;
+    private String name;
     private int port;
 
     public String getHost() {
@@ -21,5 +22,13 @@ public class DatabaseConfigModel {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

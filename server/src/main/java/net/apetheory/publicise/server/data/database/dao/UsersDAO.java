@@ -5,8 +5,8 @@ import com.mongodb.client.MongoCursor;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.converter.DocumentConverter;
 import net.apetheory.publicise.server.data.database.Database;
-import net.apetheory.publicise.server.data.database.error.InsertionError;
-import net.apetheory.publicise.server.data.database.listener.OnTransactionErrorListener;
+import net.apetheory.publicise.server.data.database.exception.ConnectionException;
+import net.apetheory.publicise.server.data.database.exception.InsertionException;
 import net.apetheory.publicise.server.resource.UserResource;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -25,21 +25,18 @@ public class UsersDAO {
      * Inserts a new user into the database
      *
      * @param database The database to insert the new user
-     * @param user The user resource to insert
-     * @param errorListener A listener which is called if an error is occurred during the transaction
+     * @param user     The user resource to insert
+     * @throws InsertionException
+     * @throws ConnectionException
      */
-    public static ResourceSet insertInto(Database database, UserResource user, OnTransactionErrorListener errorListener) {
+    public static ResourceSet insertInto(Database database, UserResource user) throws InsertionException, ConnectionException {
         return database.connect(Database.Collection.Users, (collection) -> {
             Document dbObj = DocumentConverter.toDocument(user);
 
             try {
                 collection.insertOne(dbObj);
-            } catch(MongoException e) {
-                if(errorListener != null) {
-                    errorListener.onError(new InsertionError());
-                }
-
-                return null;
+            } catch (MongoException e) {
+                throw new InsertionException(e);
             }
 
             user.setId(dbObj.getObjectId("_id").toString());
@@ -49,21 +46,17 @@ public class UsersDAO {
                     .addResource(user)
                     .build();
 
-        }, (error) -> {
-            if(errorListener != null) {
-                errorListener.onError(error);
-            }
-        }).disconnect().getResult();
+        }).getResult();
     }
 
-    public static ResourceSet getByIdFrom(Database database, String userId, OnTransactionErrorListener errorListener) {
+    public static ResourceSet getByIdFrom(Database database, String userId) throws ConnectionException {
         return database.connect(Database.Collection.Users, (collection) -> {
-            if(ObjectId.isValid(userId)) {
+            if (ObjectId.isValid(userId)) {
                 ObjectId id = new ObjectId(userId);
 
                 Document result = collection.find(eq("_id", id)).first();
 
-                if(result != null) {
+                if (result != null) {
                     UserResource resource = DocumentConverter.toResource(UserResource.class, result);
 
                     return new ResourceSet
@@ -76,14 +69,10 @@ public class UsersDAO {
 
             return null;
 
-        }, (error) -> {
-            if(errorListener != null) {
-                errorListener.onError(error);
-            }
-        }).disconnect().getResult();
+        }).getResult();
     }
 
-    public static ResourceSet getFrom(Database database, UriInfo uriInfo, int offset, int limit, OnTransactionErrorListener errorListener) {
+    public static ResourceSet getFrom(Database database, UriInfo uriInfo, int offset, int limit) throws ConnectionException {
         return database.connect(Database.Collection.Users, (collection) -> {
             MongoCursor<Document> resultSet;
 
@@ -92,12 +81,12 @@ public class UsersDAO {
 
             ResourceSet.Builder<UserResource> builder =
                     new ResourceSet.Builder<UserResource>(count)
-                        .setFilteredCount(count)
-                        .setUriInfo(uriInfo)
-                        .setOffset(offset)
-                        .setLimit(limit);
+                            .setFilteredCount(count)
+                            .setUriInfo(uriInfo)
+                            .setOffset(offset)
+                            .setLimit(limit);
 
-            if(startIdx < count) {
+            if (startIdx < count) {
                 resultSet = collection.find().skip(startIdx).limit(limit).iterator();
 
                 while (resultSet.hasNext()) {
@@ -107,11 +96,6 @@ public class UsersDAO {
 
             return builder.build();
 
-        }, (error) -> {
-            if(errorListener != null) {
-                errorListener.onError(error);
-            }
-            //TODO handle error
-        }).disconnect().getResult();
+        }).getResult();
     }
 }

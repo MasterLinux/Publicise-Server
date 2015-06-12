@@ -1,4 +1,4 @@
-package net.apetheory.publicise.server.data.database.error;
+package net.apetheory.publicise.server.api.error;
 
 import net.apetheory.publicise.server.data.ApiError;
 

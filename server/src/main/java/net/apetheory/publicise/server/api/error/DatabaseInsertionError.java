@@ -1,11 +1,11 @@
-package net.apetheory.publicise.server.data.database.error;
+package net.apetheory.publicise.server.api.error;
 
 /**
  * Represents an internal server error which
  * is used whenever the insertion of a new
  * data record failed
  */
-public class InsertionError extends DatabaseError {
+public class DatabaseInsertionError extends DatabaseError {
 
     public static final String ERROR_MESSAGE = "Unable to insert new data record";
     public static final String ERROR_NAME = "ERROR_DB_INSERTION_FAILED";

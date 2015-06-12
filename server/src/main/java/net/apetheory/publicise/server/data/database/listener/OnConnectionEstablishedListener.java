@@ -2,6 +2,7 @@ package net.apetheory.publicise.server.data.database.listener;
 
 import com.mongodb.client.MongoCollection;
 import net.apetheory.publicise.server.data.ResourceSet;
+import net.apetheory.publicise.server.data.database.exception.InsertionException;
 import org.bson.Document;
 
 /**
@@ -17,5 +18,5 @@ public interface OnConnectionEstablishedListener {
      * @param collection The collection to insert, etc data
      * @return The ResourceSet or null
      */
-    ResourceSet onEstablished(MongoCollection<Document> collection);
+    ResourceSet onEstablished(MongoCollection<Document> collection) throws InsertionException;
 }
