@@ -1,4 +1,4 @@
-package net.apetheory.publicise.server.data;
+package net.apetheory.publicise.server.api.error;
 
 import flexjson.JSON;
 import flexjson.JSONSerializer;

@@ -1,7 +1,5 @@
 package net.apetheory.publicise.server.api.error;
 
-import net.apetheory.publicise.server.data.ApiError;
-
 /**
  * Representation of a database error.
  *

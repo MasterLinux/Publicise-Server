@@ -1,7 +1,5 @@
 package net.apetheory.publicise.server.api.error;
 
-import net.apetheory.publicise.server.data.ApiError;
-
 /**
  * Created by Christoph on 03.05.2015.
  */

@@ -7,7 +7,7 @@ import net.apetheory.publicise.server.api.documentation.meta.Required;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
 import net.apetheory.publicise.server.api.parameter.FieldsParameter;
 import net.apetheory.publicise.server.api.parameter.PaginationParameter;
-import net.apetheory.publicise.server.data.ApiErrorException;
+import net.apetheory.publicise.server.api.error.ApiErrorException;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.dao.UsersDAO;

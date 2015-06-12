@@ -3,7 +3,7 @@ package net.apetheory.publicise.server.api.documentation.command;
 import net.apetheory.publicise.server.api.documentation.model.ApiEndpointModel;
 import net.apetheory.publicise.server.api.documentation.model.ErrorModel;
 import net.apetheory.publicise.server.api.documentation.meta.Errors;
-import net.apetheory.publicise.server.data.ApiError;
+import net.apetheory.publicise.server.api.error.ApiError;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

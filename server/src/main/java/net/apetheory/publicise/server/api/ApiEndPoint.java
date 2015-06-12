@@ -7,7 +7,7 @@ import net.apetheory.publicise.server.api.documentation.model.DocumentationModel
 import net.apetheory.publicise.server.api.documentation.reader.DocumentationReader;
 import net.apetheory.publicise.server.api.error.ResourceUnavailableError;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
-import net.apetheory.publicise.server.data.ApiErrorException;
+import net.apetheory.publicise.server.api.error.ApiErrorException;
 import net.apetheory.publicise.server.data.template.HtmlTemplate;
 import net.apetheory.publicise.server.data.utility.StringUtils;
 import org.glassfish.jersey.server.ManagedAsync;
