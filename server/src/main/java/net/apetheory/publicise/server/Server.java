@@ -1,5 +1,6 @@
 package net.apetheory.publicise.server;
 
+import net.apetheory.publicise.server.data.database.Database;
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -83,6 +84,7 @@ public class Server {
      */
     public void stop() {
         if (!server.isStarted()) return;
+        Database.fromConfig().disconnect();
         server.shutdownNow();
     }
 

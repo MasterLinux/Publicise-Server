@@ -18,11 +18,8 @@ import java.util.HashMap;
 public class Database {
     private static final HashMap<String, Database> instances = new HashMap<>();
     private static final Object instanceLock = new Object();
-    private final String host;
-    private final String name;
-    private final int port;
     private final MongoDatabase database;
-    private MongoClient client;
+    private final MongoClient client;
     private ResourceSet result;
 
     /**
@@ -32,10 +29,6 @@ public class Database {
      * @param port The port of the database to connect
      */
     private Database(String name, String host, int port) {
-        this.host = host;
-        this.port = port;
-        this.name = name;
-
         client = new MongoClient(host, port);
         database = client.getDatabase(name);
     }
@@ -78,14 +71,14 @@ public class Database {
     /**
      * Connects to the database
      *
-     * @param collection          The collection to get after the connection is established
+     * @param collection          The name of the collection to get
      * @param establishedListener Listener to listen for connection state changes
      * @return The current database instance
      */
-    public Database connect(Collection collection, OnConnectionEstablishedListener establishedListener) throws ConnectionException {
+    public Database connect(String collection, OnConnectionEstablishedListener establishedListener) throws ConnectionException {
         try {
             if (establishedListener != null) {
-                MongoCollection<Document> mongoCollection = database.getCollection(collection.getName());
+                MongoCollection<Document> mongoCollection = database.getCollection(collection);
                 result = establishedListener.onEstablished(mongoCollection);
             }
 
@@ -102,7 +95,6 @@ public class Database {
     public Database disconnect() {
         if (client != null) {
             client.close();
-            client = null;
             //TODO LOG lifecycle database connection closed
         } else {
             //TODO LOG lifecycle database connection is already closed
@@ -114,21 +106,4 @@ public class Database {
     public ResourceSet getResult() {
         return result;
     }
-
-    /**
-     * All available database collections
-     */
-    public enum Collection {  //TODO remove and use strings instead
-        Users("Users");
-        private final String name;
-
-        Collection(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
 }
