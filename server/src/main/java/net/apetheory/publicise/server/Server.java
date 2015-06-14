@@ -84,7 +84,13 @@ public class Server {
      */
     public void stop() {
         if (!server.isStarted()) return;
-        Database.fromConfig().disconnect();
+        try {
+            Database.fromConfig().disconnect();
+        } catch (Config.MissingNameException e) {
+            e.printStackTrace(); //TODO handle exception
+        } catch (Config.MissingConfigException e) {
+            e.printStackTrace();
+        }
         server.shutdownNow();
     }
 

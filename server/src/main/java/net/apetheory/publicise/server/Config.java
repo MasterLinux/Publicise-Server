@@ -2,11 +2,8 @@ package net.apetheory.publicise.server;
 
 import flexjson.JSONDeserializer;
 import net.apetheory.publicise.server.data.ResourceFileReader;
+import net.apetheory.publicise.server.data.utility.StringUtils;
 import net.apetheory.publicise.server.model.ConfigModel;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 /**
  * Server config used to configure
@@ -16,10 +13,9 @@ public class Config {
     private static Config instance;
     private final ConfigModel config;
 
-    private static final String DEFAULT_CONFIG_FILE_PATH = "./config.json";
-    private static final int DATABASE_DEFAULT_PORT = 27017;
+    private static final String DEFAULT_CONFIG_FILE_PATH = "config.json";
     private static final String DATABASE_DEFAULT_HOST = "localhost";
-    private static final String DATABASE_DEFAULT_NAME = "$$_DEFAULT_DB_$$";
+    private static final int DATABASE_DEFAULT_PORT = 27017;
 
     private Config() {
         config = new ConfigModel();
@@ -35,21 +31,20 @@ public class Config {
      * @param configFilePath The file path where the config is located
      * @return The loaded config
      */
-    public synchronized static Config load(String configFilePath) {
+    public synchronized static Config load(String configFilePath) throws MissingConfigException {
         configFilePath = configFilePath != null ? configFilePath : DEFAULT_CONFIG_FILE_PATH;
 
-        if(instance == null) {
-            String json = ResourceFileReader.readFile(configFilePath);
+        if (instance == null) {
+            String json = new ResourceFileReader().readFile(configFilePath);
 
-            if(json != null) {
+            if (json != null) {
                 //TODO use new ResourceFileReader("documentation.html").readFile() to load config from resources
                 //TODO log custom config is loaded
                 //TODO handle exceptions
                 ConfigModel config = new JSONDeserializer<ConfigModel>().deserialize(json, ConfigModel.class);
                 instance = new Config(config);
             } else {
-                //TODO log default config is loaded
-                instance = new Config();
+                throw new MissingConfigException();
             }
         }
 
@@ -58,57 +53,64 @@ public class Config {
 
     /**
      * Loads the default config as singleton instance
+     *
      * @return The default config
      */
-    public synchronized static Config load() {
+    public synchronized static Config load() throws MissingConfigException {
         return load(null);
     }
 
     /**
      * Gets the port of the database
+     *
      * @return The port
      */
     public int getDatabasePort() {
-        return config.getDatabase() != null ? config.getDatabase().getPort() : DATABASE_DEFAULT_PORT;
+        int port = config.getDatabase() != null ? config.getDatabase().getPort() : 0;
+
+        if (port == 0) {
+            port = DATABASE_DEFAULT_PORT;
+        }
+
+        return port;
     }
 
     /**
      * Gets the host of the database
+     *
      * @return the host
      */
     public String getDatabaseHost() {
-        return config.getDatabase() != null ? config.getDatabase().getHost() : DATABASE_DEFAULT_HOST;
-    }
+        String host = config.getDatabase() != null ? config.getDatabase().getHost() : null;
 
-    public String getDatabaseName() {
-        return config.getDatabase() != null ? config.getDatabase().getName() : DATABASE_DEFAULT_NAME;
-    }
-
-    /**
-     * Reads the config from file system
-     *
-     * @param path The file path where the config is located
-     * @return The file content of the config
-     */
-    private static String readConfigFromFS(String path) {
-        String result, line;
-
-        try {
-            FileReader fileReader = new FileReader(path);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            StringBuilder builder = new StringBuilder();
-
-            while ((line = bufferedReader.readLine()) != null) {
-                builder.append(line);
-            }
-
-            result = builder.toString();
-
-        } catch (IOException e) {
-            //TODO Log error
-            result = null;
+        if (StringUtils.isNullOrEmpty(host)) {
+            host = DATABASE_DEFAULT_HOST;
         }
 
-        return result;
+        return host;
+    }
+
+    public String getDatabaseName() throws MissingNameException {
+        String name = config.getDatabase() != null ? config.getDatabase().getName() : null;
+
+        if (StringUtils.isNullOrEmpty(name)) {
+            throw new MissingNameException();
+        }
+
+        return name;
+    }
+
+    public static class MissingNameException extends Exception {
+
+        public MissingNameException() {
+            super("Missing database name");
+        }
+    }
+
+    public static class MissingConfigException extends Exception {
+
+        public MissingConfigException() {
+            super("Config could not be loaded");
+        }
     }
 }

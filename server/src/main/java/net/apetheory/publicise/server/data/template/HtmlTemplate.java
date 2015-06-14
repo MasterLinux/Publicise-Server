@@ -84,7 +84,7 @@ public class HtmlTemplate {
 
         @Override
         public MessageResolution resolveMessage(Arguments arguments, String key, Object[] messageParameters) {
-            Properties properties = ResourceFileReader.readProperties(path);
+            Properties properties = new ResourceFileReader().readProperties(path);
             MessageResolution resolution = null;
 
             if(properties != null && properties.containsKey(key)) {

@@ -1,6 +1,7 @@
 package net.apetheory.publicise.server.api;
 
 import flexjson.JSONDeserializer;
+import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.api.documentation.meta.Description;
 import net.apetheory.publicise.server.api.documentation.meta.Errors;
 import net.apetheory.publicise.server.api.documentation.meta.Required;
@@ -29,10 +30,10 @@ public class UsersEndPoint extends BaseEndPoint {
 
     /**
      * Creates a new user
-     *
+     * <p>
      * <br><br><b>Required header:</b><br>
      * Content-Type: application/json
-     *
+     * <p>
      * <br><br><b>Body example:</b><br>
      * The document to add must be a JSON like
      * the following example. Each field is required
@@ -54,19 +55,19 @@ public class UsersEndPoint extends BaseEndPoint {
     @Description("Creates a new user")
     public String createUser(@BeanParam PrettyPrintHeader prettyPrint, String body) {
         boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
-        UsersDAO users = new UsersDAO(Database.fromConfig());
         ResourceSet result;
 
         UserResource resource = new JSONDeserializer<UserResource>()
-                    .deserialize(body, UserResource.class);
+                .deserialize(body, UserResource.class);
 
         try {
+            UsersDAO users = new UsersDAO(Database.fromConfig());
             result = users.insert(resource);
         } catch (InsertionException e) {
             throw new ApiErrorException(new DatabaseInsertionError(), isPrettyPrinted);
         } catch (ConnectionException e) {
             throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
-        } catch (Exception e) {
+        } catch (Config.MissingNameException | Config.MissingConfigException e) {
             throw new ApiErrorException(new InternalServerError(), isPrettyPrinted);
         }
 
@@ -89,13 +90,15 @@ public class UsersEndPoint extends BaseEndPoint {
             @Required @PathParam("id") @Description("The ID of the user to get") String id
     ) {
         boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
-        UsersDAO users = new UsersDAO(Database.fromConfig());
         ResourceSet result;
 
         try {
+            UsersDAO users = new UsersDAO(Database.fromConfig());
             result = users.getById(id);
         } catch (ConnectionException e) {
             throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
+        } catch (Config.MissingNameException | Config.MissingConfigException e) {
+            throw new ApiErrorException(new InternalServerError(), isPrettyPrinted);
         }
 
         return result != null ? result.toJson(isPrettyPrinted) : null;
@@ -116,13 +119,15 @@ public class UsersEndPoint extends BaseEndPoint {
             @Context UriInfo uriInfo
     ) {
         boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
-        UsersDAO users = new UsersDAO(Database.fromConfig());
         ResourceSet result;
 
         try {
+            UsersDAO users = new UsersDAO(Database.fromConfig());
             result = users.get(uriInfo, pagination.getOffset(), pagination.getLimit());
         } catch (ConnectionException e) {
             throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
+        } catch (Config.MissingNameException | Config.MissingConfigException e) {
+            throw new ApiErrorException(new InternalServerError(), isPrettyPrinted);
         }
 
         return result != null ? result.toJson(fields.getFields(), isPrettyPrinted) : null;

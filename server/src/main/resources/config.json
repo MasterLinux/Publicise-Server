@@ -1,6 +1,7 @@
 {
-    "database": {
-        "host": "localhost",
-        "port": 27017
-    }
+  "database": {
+    "name": "publicize",
+    "host": "localhost",
+    "port": 27017
+  }
 }
