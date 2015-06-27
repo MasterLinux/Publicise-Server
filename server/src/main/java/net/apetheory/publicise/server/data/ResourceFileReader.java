@@ -13,7 +13,7 @@ import java.util.Properties;
  */
 public class ResourceFileReader {
 
-
+    @Nullable
     public InputStream getResourceAsStream(String resource) {
         InputStream stream;
 
@@ -51,7 +51,11 @@ public class ResourceFileReader {
         String fileContent = null;
 
         try {
-            fileContent = IOUtils.toString(input);
+            if (input != null) {
+                fileContent = IOUtils.toString(input);
+            } else {
+                // TODO throw
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

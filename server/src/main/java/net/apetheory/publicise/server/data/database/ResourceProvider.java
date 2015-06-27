@@ -11,6 +11,9 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import javax.ws.rs.core.UriInfo;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -18,6 +21,7 @@ import static com.mongodb.client.model.Filters.eq;
  * Created by Christoph on 12.06.2015.
  */
 public class ResourceProvider<TResource extends BaseResource> {
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Class<TResource> resourceClass;
     private final String collection;
     private final Database database;
@@ -43,13 +47,17 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @throws ConnectionException
      */
     public ResourceSet insert(TResource resource) throws InsertionException, ConnectionException {
-        return database.connect(collection, (collection) -> {
-            Document dbObj = DocumentConverter.toDocument(resource);
+        return database.getCollection(collection, (collection) -> {
+            final Document dbObj = DocumentConverter.toDocument(resource);
+            final Lock lock = readWriteLock.writeLock();
 
+            lock.lock();
             try {
                 collection.insertOne(dbObj);
             } catch (MongoException e) {
                 throw new InsertionException(e);
+            } finally {
+                lock.unlock();
             }
 
             resource.setId(dbObj.getObjectId("_id").toString());
@@ -69,12 +77,16 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @return The requested resource or null
      * @throws ConnectionException
      */
-    public ResourceSet getById(String resourceId) throws ConnectionException {
-        return database.connect(collection, (collection) -> {
-            if (ObjectId.isValid(resourceId)) {
-                ObjectId id = new ObjectId(resourceId);
 
+    public ResourceSet getById(String resourceId) throws ConnectionException {
+        return database.getCollection(collection, (collection) -> {
+            if (ObjectId.isValid(resourceId)) {
+                final ObjectId id = new ObjectId(resourceId);
+                final Lock lock = readWriteLock.readLock();
+
+                lock.lock();
                 Document result = collection.find(eq("_id", id)).first();
+                lock.unlock();
 
                 if (result != null) {
                     TResource resource = DocumentConverter.toResource(resourceClass, result);
@@ -93,8 +105,11 @@ public class ResourceProvider<TResource extends BaseResource> {
     }
 
     public ResourceSet get(UriInfo uriInfo, int offset, int limit) throws ConnectionException {
-        return database.connect(collection, (collection) -> {
+        return database.getCollection(collection, (collection) -> {
+            final Lock lock = readWriteLock.readLock();
             MongoCursor<Document> resultSet;
+
+            lock.lock();
 
             long count = collection.count();
             int startIdx = limit * offset;
@@ -113,6 +128,8 @@ public class ResourceProvider<TResource extends BaseResource> {
                     builder.addResource(DocumentConverter.toResource(resourceClass, resultSet.next()));
                 }
             }
+
+            lock.unlock();
 
             return builder.build();
 

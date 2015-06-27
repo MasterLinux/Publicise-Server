@@ -80,7 +80,7 @@ public class Database {
      * @param establishedListener Listener to listen for connection state changes
      * @return The current database instance
      */
-    public Database connect(String collection, OnConnectionEstablishedListener establishedListener) throws ConnectionException {
+    public Database getCollection(String collection, OnConnectionEstablishedListener establishedListener) throws ConnectionException {
         try {
             if (establishedListener != null) {
                 MongoCollection<Document> mongoCollection = client.getDatabase(name).getCollection(collection);
