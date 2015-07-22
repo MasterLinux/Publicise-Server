@@ -4,6 +4,7 @@ import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.converter.DocumentConverter;
 import net.apetheory.publicise.server.data.database.exception.ConnectionException;
 import net.apetheory.publicise.server.data.database.exception.InsertionException;
+import net.apetheory.publicise.server.data.database.exception.QueryException;
 import net.apetheory.publicise.server.resource.BaseResource;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -11,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.ws.rs.core.UriInfo;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -20,7 +19,6 @@ import static com.mongodb.client.model.Filters.eq;
  * A provider used to get access to a specific resource
  */
 public class ResourceProvider<TResource extends BaseResource> {
-    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Class<TResource> resourceClass;
     private final String collection;
     private final Database database;
@@ -89,12 +87,12 @@ public class ResourceProvider<TResource extends BaseResource> {
 
                 collection.find(eq("_id", id)).first((result, findThrowable) -> {
                     if (findThrowable != null) {
-                        listener.onDataSetInserted(null, null); //TODO return exception
+                        listener.onDataSetInserted(null, new QueryException(findThrowable));
                     }
 
                     collection.count((count, countThrowable) -> {
                         if (countThrowable != null) {
-                            listener.onDataSetInserted(null, null); //TODO return exception
+                            listener.onDataSetInserted(null, new QueryException(countThrowable));
                             return;
                         }
 
@@ -107,7 +105,7 @@ public class ResourceProvider<TResource extends BaseResource> {
                 });
             });
         } else {
-            listener.onDataSetInserted(null, null); //TODO return exception
+            listener.onDataSetInserted(null, new QueryException(null)); //TODO create specific exception for invalid IDs?
         }
     }
 
@@ -115,14 +113,14 @@ public class ResourceProvider<TResource extends BaseResource> {
         database.getCollection(collection, (collection) -> {
             collection.count((count, countThrowable) -> {
                 if (countThrowable != null) {
-                    listener.onDataSetInserted(null, null); //TODO return exception
+                    listener.onDataSetInserted(null, new QueryException(countThrowable));
                     return;
                 }
 
                 final int startIdx = limit * offset;
                 final ResourceSet.Builder<TResource> builder =
                         new ResourceSet.Builder<TResource>(count)
-                                .setFilteredCount(count) // TODO calculate filtered count
+                                .setFilteredCount(count)
                                 .setUriInfo(uriInfo)
                                 .setOffset(offset)
                                 .setLimit(limit);
@@ -132,14 +130,14 @@ public class ResourceProvider<TResource extends BaseResource> {
                         builder.addResource(DocumentConverter.toResource(resourceClass, document));
                     }, (noResult, findThrowable) -> {
                         if (findThrowable != null) {
-                            listener.onDataSetInserted(null, null);
+                            listener.onDataSetInserted(null, new QueryException(findThrowable));
                             return;
                         }
 
                         listener.onDataSetInserted(builder.build(), null);
                     });
                 } else {
-                    listener.onDataSetInserted(null, null); //TODO return exception -> out of index!
+                    listener.onDataSetInserted(builder.build(), null);
                 }
             });
         });

@@ -1,11 +1,9 @@
 package net.apetheory.publicise.server.data.utility;
 
-import net.apetheory.publicise.server.api.error.ApiError;
-import net.apetheory.publicise.server.api.error.DatabaseConnectionError;
-import net.apetheory.publicise.server.api.error.DatabaseInsertionError;
-import net.apetheory.publicise.server.api.error.InternalServerError;
+import net.apetheory.publicise.server.api.error.*;
 import net.apetheory.publicise.server.data.database.exception.ConnectionException;
 import net.apetheory.publicise.server.data.database.exception.InsertionException;
+import net.apetheory.publicise.server.data.database.exception.QueryException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -21,6 +19,8 @@ public class ApiErrorUtil {
             error = new DatabaseInsertionError();
         } else if (e instanceof ConnectionException) {
             error = new DatabaseConnectionError();
+        } else if(e instanceof QueryException) {
+            error = new DatabaseQueryingError();
         } else {
             error = new InternalServerError();
         }
