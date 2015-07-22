@@ -55,16 +55,14 @@ public class Database {
                 }
             }
         } else {
-            synchronized (instanceLock) {
-                database = instances.get(databaseName);
-            }
+            database = instances.get(databaseName);
         }
 
         return database;
     }
 
     /**
-     * Creates a new database configured by the default config
+     * Creates a new database using the default config
      *
      * @return The new database instance
      */
@@ -74,10 +72,10 @@ public class Database {
     }
 
     /**
-     * Connects to the database
+     * Get a specific database collection
      *
      * @param collection          The name of the collection to get
-     * @param establishedListener Listener to listen for connection state changes
+     * @param establishedListener Listener used to listen for connection state changes
      * @return The current database instance
      */
     public Database getCollection(String collection, OnConnectionEstablishedListener establishedListener) throws ConnectionException {
@@ -98,13 +96,7 @@ public class Database {
      * Closes the database connection. The database should be disconnection on server shutdown
      */
     public Database disconnect() {
-        if (client != null) {
-            client.close();
-            //TODO LOG lifecycle database connection closed
-        } else {
-            //TODO LOG lifecycle database connection is already closed
-        }
-
+        client.close();
         return this;
     }
 

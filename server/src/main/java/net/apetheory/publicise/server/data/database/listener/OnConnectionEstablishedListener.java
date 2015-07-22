@@ -4,6 +4,7 @@ import com.mongodb.client.MongoCollection;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.exception.InsertionException;
 import org.bson.Document;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Listener used to notify a listener that the
@@ -18,5 +19,6 @@ public interface OnConnectionEstablishedListener {
      * @param collection The collection to insert, etc data
      * @return The ResourceSet or null
      */
+    @Nullable
     ResourceSet onEstablished(MongoCollection<Document> collection) throws InsertionException;
 }

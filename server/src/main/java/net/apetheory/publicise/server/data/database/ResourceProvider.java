@@ -9,6 +9,7 @@ import net.apetheory.publicise.server.data.database.exception.InsertionException
 import net.apetheory.publicise.server.resource.BaseResource;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.Nullable;
 
 import javax.ws.rs.core.UriInfo;
 import java.util.concurrent.locks.Lock;
@@ -18,7 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static com.mongodb.client.model.Filters.eq;
 
 /**
- * Created by Christoph on 12.06.2015.
+ * A provider used to get access to a specific resource
  */
 public class ResourceProvider<TResource extends BaseResource> {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -29,7 +30,7 @@ public class ResourceProvider<TResource extends BaseResource> {
     /**
      * Initializes the content provider
      *
-     * @param database      The database to insert the new user
+     * @param database      The database to insert the new data record
      * @param collection    The name of the collection to access
      * @param resourceClass The class of the resource
      */
@@ -77,9 +78,11 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @return The requested resource or null
      * @throws ConnectionException
      */
-
+    @Nullable
     public ResourceSet getById(String resourceId) throws ConnectionException {
         return database.getCollection(collection, (collection) -> {
+            ResourceSet resourceSet = null;
+
             if (ObjectId.isValid(resourceId)) {
                 final ObjectId id = new ObjectId(resourceId);
                 final Lock lock = readWriteLock.readLock();
@@ -91,7 +94,7 @@ public class ResourceProvider<TResource extends BaseResource> {
                 if (result != null) {
                     TResource resource = DocumentConverter.toResource(resourceClass, result);
 
-                    return new ResourceSet
+                    resourceSet = new ResourceSet
                             .Builder<TResource>(collection.count())
                             .setFilteredCount(1)
                             .addResource(resource)
@@ -99,7 +102,7 @@ public class ResourceProvider<TResource extends BaseResource> {
                 }
             }
 
-            return null;
+            return resourceSet;
 
         }).getResult();
     }
