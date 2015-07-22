@@ -24,7 +24,7 @@ public class ResourceProvider<TResource extends BaseResource> {
     private final Database database;
 
     public interface OnCompletedListener {
-        void onDataSetInserted(@Nullable ResourceSet resourceSet, @Nullable Exception exception);
+        void onCompleted(@Nullable ResourceSet resourceSet, @Nullable Exception exception);
     }
 
     /**
@@ -53,18 +53,18 @@ public class ResourceProvider<TResource extends BaseResource> {
 
             collection.insertOne(dbObj, (noResult, insertionThrowable) -> {
                 if (insertionThrowable != null) {
-                    listener.onDataSetInserted(null, new InsertionException(insertionThrowable));
+                    listener.onCompleted(null, new InsertionException(insertionThrowable));
                     return;
                 }
 
                 collection.count((count, countThrowable) -> {
                     if (countThrowable != null) {
-                        listener.onDataSetInserted(null, new InsertionException(countThrowable));
+                        listener.onCompleted(null, new InsertionException(countThrowable));
                         return;
                     }
 
                     resource.setId(dbObj.getObjectId("_id").toString());
-                    listener.onDataSetInserted(new ResourceSet.Builder<TResource>(count)
+                    listener.onCompleted(new ResourceSet.Builder<TResource>(count)
                             .addResource(resource)
                             .setFilteredCount(1)
                             .build(), null);
@@ -87,17 +87,17 @@ public class ResourceProvider<TResource extends BaseResource> {
 
                 collection.find(eq("_id", id)).first((result, findThrowable) -> {
                     if (findThrowable != null) {
-                        listener.onDataSetInserted(null, new QueryException(findThrowable));
+                        listener.onCompleted(null, new QueryException(findThrowable));
                     }
 
                     collection.count((count, countThrowable) -> {
                         if (countThrowable != null) {
-                            listener.onDataSetInserted(null, new QueryException(countThrowable));
+                            listener.onCompleted(null, new QueryException(countThrowable));
                             return;
                         }
 
                         TResource resource = DocumentConverter.toResource(resourceClass, result);
-                        listener.onDataSetInserted(new ResourceSet.Builder<TResource>(count)
+                        listener.onCompleted(new ResourceSet.Builder<TResource>(count)
                                 .setFilteredCount(1)
                                 .addResource(resource)
                                 .build(), null);
@@ -105,7 +105,7 @@ public class ResourceProvider<TResource extends BaseResource> {
                 });
             });
         } else {
-            listener.onDataSetInserted(null, new QueryException(null)); //TODO create specific exception for invalid IDs?
+            listener.onCompleted(null, new QueryException(null)); //TODO create specific exception for invalid IDs?
         }
     }
 
@@ -113,7 +113,7 @@ public class ResourceProvider<TResource extends BaseResource> {
         database.getCollection(collection, (collection) -> {
             collection.count((count, countThrowable) -> {
                 if (countThrowable != null) {
-                    listener.onDataSetInserted(null, new QueryException(countThrowable));
+                    listener.onCompleted(null, new QueryException(countThrowable));
                     return;
                 }
 
@@ -130,14 +130,14 @@ public class ResourceProvider<TResource extends BaseResource> {
                         builder.addResource(DocumentConverter.toResource(resourceClass, document));
                     }, (noResult, findThrowable) -> {
                         if (findThrowable != null) {
-                            listener.onDataSetInserted(null, new QueryException(findThrowable));
+                            listener.onCompleted(null, new QueryException(findThrowable));
                             return;
                         }
 
-                        listener.onDataSetInserted(builder.build(), null);
+                        listener.onCompleted(builder.build(), null);
                     });
                 } else {
-                    listener.onDataSetInserted(builder.build(), null);
+                    listener.onCompleted(builder.build(), null);
                 }
             });
         });
