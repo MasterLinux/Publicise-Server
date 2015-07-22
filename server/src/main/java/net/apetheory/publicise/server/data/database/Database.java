@@ -1,7 +1,11 @@
 package net.apetheory.publicise.server.data.database;
 
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
+import com.mongodb.ServerAddress;
+import com.mongodb.async.client.MongoClient;
+import com.mongodb.async.client.MongoClientSettings;
+import com.mongodb.async.client.MongoClients;
+import com.mongodb.async.client.MongoCollection;
+import com.mongodb.connection.ClusterSettings;
 import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.exception.ConnectionException;
@@ -9,6 +13,8 @@ import net.apetheory.publicise.server.data.database.listener.OnConnectionEstabli
 import org.bson.Document;
 
 import java.util.HashMap;
+
+import static java.util.Arrays.asList;
 
 /**
  * Helper class to establish a connection
@@ -28,9 +34,17 @@ public class Database {
      * @param port The port of the database to connect
      */
     private Database(String name, String host, int port) {
-        client = new MongoClient(host, port);
+        ClusterSettings clusterSettings = ClusterSettings.builder()
+                .hosts(asList(new ServerAddress(host, port))).build();
+
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .clusterSettings(clusterSettings).build();
+
+        client = MongoClients.create(settings);
         this.name = name;
     }
+
+    //private MongoClient createClient()
 
     /**
      * Creates a new database configured by a config
@@ -82,7 +96,7 @@ public class Database {
         try {
             if (establishedListener != null) {
                 MongoCollection<Document> mongoCollection = client.getDatabase(name).getCollection(collection);
-                result = establishedListener.onEstablished(mongoCollection);
+                establishedListener.onEstablished(mongoCollection);
             }
 
         } catch (Exception e) {
@@ -100,6 +114,7 @@ public class Database {
         return this;
     }
 
+    @Deprecated
     public ResourceSet getResult() {
         return result;
     }

@@ -18,10 +18,14 @@ import net.apetheory.publicise.server.data.database.dao.UsersDAO;
 import net.apetheory.publicise.server.data.database.exception.ConnectionException;
 import net.apetheory.publicise.server.data.database.exception.InsertionException;
 import net.apetheory.publicise.server.resource.UserResource;
+import org.glassfish.jersey.server.ManagedAsync;
 
 import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path("/users")
@@ -53,16 +57,28 @@ public class UsersEndPoint extends BaseEndPoint {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Description("Creates a new user")
-    public String createUser(@BeanParam PrettyPrintHeader prettyPrint, String body) {
+    @ManagedAsync
+    public void createUser(
+            @Suspended AsyncResponse response,
+            @BeanParam PrettyPrintHeader prettyPrint,
+            String body
+    ) {
         boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
-        ResourceSet result;
-
         UserResource resource = new JSONDeserializer<UserResource>()
                 .deserialize(body, UserResource.class);
 
         try {
             UsersDAO users = new UsersDAO(Database.fromConfig());
-            result = users.insert(resource);
+            users.insert(resource, (resourceSet, throwable) -> {
+                if (throwable != null) {
+
+                } else {
+                    response.resume(Response.ok()
+                            .type(MediaType.APPLICATION_JSON)
+                            .entity(resourceSet.toJson(isPrettyPrinted))
+                            .build());
+                }
+            });
         } catch (InsertionException e) {
             throw new ApiErrorException(new DatabaseInsertionError(), isPrettyPrinted);
         } catch (ConnectionException e) {
@@ -70,8 +86,6 @@ public class UsersEndPoint extends BaseEndPoint {
         } catch (Config.MissingNameException | Config.MissingConfigException e) {
             throw new ApiErrorException(new InternalServerError(), isPrettyPrinted);
         }
-
-        return result != null ? result.toJson(isPrettyPrinted) : null;
     }
 
     /**

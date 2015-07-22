@@ -1,22 +1,17 @@
 package net.apetheory.publicise.server.data.database;
 
-import com.mongodb.MongoException;
-import com.mongodb.client.MongoCursor;
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.converter.DocumentConverter;
 import net.apetheory.publicise.server.data.database.exception.ConnectionException;
 import net.apetheory.publicise.server.data.database.exception.InsertionException;
 import net.apetheory.publicise.server.resource.BaseResource;
 import org.bson.Document;
-import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.ws.rs.core.UriInfo;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * A provider used to get access to a specific resource
@@ -26,6 +21,10 @@ public class ResourceProvider<TResource extends BaseResource> {
     private final Class<TResource> resourceClass;
     private final String collection;
     private final Database database;
+
+    public interface OnDataSetInsertedListener {
+        void onDataSetInserted(@Nullable ResourceSet resourceSet, @Nullable Exception exception);
+    }
 
     /**
      * Initializes the content provider
@@ -47,28 +46,29 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @throws InsertionException
      * @throws ConnectionException
      */
-    public ResourceSet insert(TResource resource) throws InsertionException, ConnectionException {
-        return database.getCollection(collection, (collection) -> {
+    public void insert(final TResource resource, @NotNull final OnDataSetInsertedListener listener) throws InsertionException, ConnectionException {
+        database.getCollection(collection, (collection) -> {
             final Document dbObj = DocumentConverter.toDocument(resource);
-            final Lock lock = readWriteLock.writeLock();
 
-            lock.lock();
-            try {
-                collection.insertOne(dbObj);
-            } catch (MongoException e) {
-                throw new InsertionException(e);
-            } finally {
-                lock.unlock();
-            }
-
-            resource.setId(dbObj.getObjectId("_id").toString());
-
-            return new ResourceSet
-                    .Builder<TResource>(collection.count())
-                    .addResource(resource)
-                    .build();
-
-        }).getResult();
+            collection.insertOne(dbObj, (noResult, insertionError) -> {
+                if (insertionError != null) {
+                    listener.onDataSetInserted(null, new InsertionException(insertionError));
+                } else {
+                    collection.count((count, countingError) -> {
+                        if (countingError != null) {
+                            listener.onDataSetInserted(null, new InsertionException(countingError));
+                        } else {
+                            resource.setId(dbObj.getObjectId("_id").toString());
+                            listener.onDataSetInserted(new ResourceSet
+                                    .Builder<TResource>(count)
+                                    .addResource(resource)
+                                    .setFilteredCount(1)
+                                    .build(), null);
+                        }
+                    });
+                }
+            });
+        });
     }
 
     /**
@@ -81,6 +81,7 @@ public class ResourceProvider<TResource extends BaseResource> {
     @Nullable
     public ResourceSet getById(String resourceId) throws ConnectionException {
         return database.getCollection(collection, (collection) -> {
+            /*
             ResourceSet resourceSet = null;
 
             if (ObjectId.isValid(resourceId)) {
@@ -103,12 +104,14 @@ public class ResourceProvider<TResource extends BaseResource> {
             }
 
             return resourceSet;
+            */
 
         }).getResult();
     }
 
     public ResourceSet get(UriInfo uriInfo, int offset, int limit) throws ConnectionException {
         return database.getCollection(collection, (collection) -> {
+            /*
             final Lock lock = readWriteLock.readLock();
             MongoCursor<Document> resultSet;
 
@@ -135,6 +138,8 @@ public class ResourceProvider<TResource extends BaseResource> {
             lock.unlock();
 
             return builder.build();
+
+            */
 
         }).getResult();
     }

@@ -5,7 +5,7 @@ package net.apetheory.publicise.server.data.database.exception;
  */
 public class InsertionException extends Exception {
 
-    public InsertionException(Exception e) {
-        super("Unable to insert new data record", e);
+    public InsertionException(Throwable t) {
+        super("Unable to insert new data record", t);
     }
 }
