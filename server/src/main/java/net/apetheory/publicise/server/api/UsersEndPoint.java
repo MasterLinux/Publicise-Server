@@ -5,19 +5,18 @@ import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.api.documentation.meta.Description;
 import net.apetheory.publicise.server.api.documentation.meta.Errors;
 import net.apetheory.publicise.server.api.documentation.meta.Required;
-import net.apetheory.publicise.server.api.error.*;
+import net.apetheory.publicise.server.api.error.ApiErrorException;
+import net.apetheory.publicise.server.api.error.DatabaseConnectionError;
+import net.apetheory.publicise.server.api.error.InternalServerError;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
 import net.apetheory.publicise.server.api.parameter.FieldsParameter;
 import net.apetheory.publicise.server.api.parameter.PaginationParameter;
-import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.dao.UsersDAO;
-import net.apetheory.publicise.server.data.database.exception.ConnectionException;
-import net.apetheory.publicise.server.data.database.exception.InsertionException;
+import net.apetheory.publicise.server.data.utility.ApiErrorUtil;
 import net.apetheory.publicise.server.data.utility.UriUtils;
 import net.apetheory.publicise.server.resource.UserResource;
 import org.glassfish.jersey.server.ManagedAsync;
-import org.jetbrains.annotations.NotNull;
 
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
@@ -69,9 +68,9 @@ public class UsersEndPoint extends BaseEndPoint {
         try {
             UsersDAO users = new UsersDAO(Database.fromConfig());
 
-            users.insert(resource, (resourceSet, e) -> {
-                if (e != null) {
-                    response.resume(new ApiErrorException(getApiError(e), isPrettyPrinted));
+            users.insert(resource, (resourceSet, exception) -> {
+                if (exception != null) {
+                    response.resume(new ApiErrorException(ApiErrorUtil.getApiError(exception), isPrettyPrinted));
                     return;
                 }
 
@@ -85,22 +84,6 @@ public class UsersEndPoint extends BaseEndPoint {
         }
     }
 
-    // TODO move to utility class
-    @NotNull
-    private ApiError getApiError(Exception e) {
-        ApiError error;
-
-        if (e instanceof InsertionException) {
-            error = new DatabaseInsertionError();
-        } else if (e instanceof ConnectionException) {
-            error = new DatabaseConnectionError();
-        } else {
-            error = new InternalServerError();
-        }
-
-        return error;
-    }
-
     /**
      * Gets a user by its ID
      *
@@ -112,23 +95,31 @@ public class UsersEndPoint extends BaseEndPoint {
     @Produces(MediaType.APPLICATION_JSON)
     @Errors({DatabaseConnectionError.class})
     @Description("Gets a specific user by its ID")
-    public String getUserById(
+    @ManagedAsync
+    public void getUserById(
+            @Suspended AsyncResponse response,
             @BeanParam PrettyPrintHeader prettyPrint,
             @Required @PathParam("id") @Description("The ID of the user to get") String id
     ) {
-        boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
-        ResourceSet result;
+        final boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
 
         try {
             UsersDAO users = new UsersDAO(Database.fromConfig());
-            result = users.getById(id);
-        } catch (ConnectionException e) {
-            throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
-        } catch (Config.MissingNameException | Config.MissingConfigException e) {
-            throw new ApiErrorException(new InternalServerError(), isPrettyPrinted);
-        }
 
-        return result != null ? result.toJson(isPrettyPrinted) : null;
+            users.getById(id, (resourceSet, exception) -> {
+                if (exception != null) {
+                    response.resume(new ApiErrorException(ApiErrorUtil.getApiError(exception), isPrettyPrinted));
+                    return;
+                }
+
+                response.resume(Response.ok()
+                        .type(MediaType.APPLICATION_JSON)
+                        .entity(resourceSet.toJson(isPrettyPrinted))
+                        .build());
+            });
+        } catch (Config.MissingNameException | Config.MissingConfigException e) {
+            response.resume(new ApiErrorException(new InternalServerError(), isPrettyPrinted));
+        }
     }
 
     /**
@@ -139,24 +130,32 @@ public class UsersEndPoint extends BaseEndPoint {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Gets all registered users")
-    public String getDocuments(
+    @ManagedAsync
+    public void getDocuments(
+            @Suspended AsyncResponse response,
             @BeanParam PrettyPrintHeader prettyPrint,
             @BeanParam PaginationParameter pagination,
             @BeanParam FieldsParameter fields,
             @Context UriInfo uriInfo
     ) {
-        boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
-        ResourceSet result;
+        final boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
 
         try {
             UsersDAO users = new UsersDAO(Database.fromConfig());
-            result = users.get(uriInfo, pagination.getOffset(), pagination.getLimit());
-        } catch (ConnectionException e) {
-            throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
+
+            users.get(uriInfo, pagination.getOffset(), pagination.getLimit(), (resourceSet, exception) -> {
+                if (exception != null) {
+                    response.resume(new ApiErrorException(ApiErrorUtil.getApiError(exception), isPrettyPrinted));
+                    return;
+                }
+
+                response.resume(Response.ok()
+                        .type(MediaType.APPLICATION_JSON)
+                        .entity(resourceSet.toJson(isPrettyPrinted))
+                        .build());
+            });
         } catch (Config.MissingNameException | Config.MissingConfigException e) {
             throw new ApiErrorException(new InternalServerError(), isPrettyPrinted);
         }
-
-        return result != null ? result.toJson(fields.getFields(), isPrettyPrinted) : null;
     }
 }

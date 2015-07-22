@@ -6,12 +6,15 @@ import net.apetheory.publicise.server.data.database.exception.ConnectionExceptio
 import net.apetheory.publicise.server.data.database.exception.InsertionException;
 import net.apetheory.publicise.server.resource.BaseResource;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.ws.rs.core.UriInfo;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static com.mongodb.client.model.Filters.eq;
 
 /**
  * A provider used to get access to a specific resource
@@ -22,7 +25,7 @@ public class ResourceProvider<TResource extends BaseResource> {
     private final String collection;
     private final Database database;
 
-    public interface OnDataSetInsertedListener {
+    public interface OnCompletedListener {
         void onDataSetInserted(@Nullable ResourceSet resourceSet, @Nullable Exception exception);
     }
 
@@ -46,27 +49,28 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @throws InsertionException
      * @throws ConnectionException
      */
-    public void insert(final TResource resource, @NotNull final OnDataSetInsertedListener listener) {
+    public void insert(final TResource resource, @NotNull final OnCompletedListener listener) {
         database.getCollection(collection, (collection) -> {
             final Document dbObj = DocumentConverter.toDocument(resource);
 
-            collection.insertOne(dbObj, (noResult, insertionError) -> {
-                if (insertionError != null) {
-                    listener.onDataSetInserted(null, new InsertionException(insertionError));
-                } else {
-                    collection.count((count, countingError) -> {
-                        if (countingError != null) {
-                            listener.onDataSetInserted(null, new InsertionException(countingError));
-                        } else {
-                            resource.setId(dbObj.getObjectId("_id").toString());
-                            listener.onDataSetInserted(new ResourceSet
-                                    .Builder<TResource>(count)
-                                    .addResource(resource)
-                                    .setFilteredCount(1)
-                                    .build(), null);
-                        }
-                    });
+            collection.insertOne(dbObj, (noResult, insertionThrowable) -> {
+                if (insertionThrowable != null) {
+                    listener.onDataSetInserted(null, new InsertionException(insertionThrowable));
+                    return;
                 }
+
+                collection.count((count, countThrowable) -> {
+                    if (countThrowable != null) {
+                        listener.onDataSetInserted(null, new InsertionException(countThrowable));
+                        return;
+                    }
+
+                    resource.setId(dbObj.getObjectId("_id").toString());
+                    listener.onDataSetInserted(new ResourceSet.Builder<TResource>(count)
+                            .addResource(resource)
+                            .setFilteredCount(1)
+                            .build(), null);
+                });
             });
         });
     }
@@ -78,69 +82,66 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @return The requested resource or null
      * @throws ConnectionException
      */
-    @Nullable
-    public ResourceSet getById(String resourceId) throws ConnectionException {
-        return database.getCollection(collection, (collection) -> {
-            /*
-            ResourceSet resourceSet = null;
-
-            if (ObjectId.isValid(resourceId)) {
+    public void getById(final String resourceId, @NotNull final OnCompletedListener listener) {
+        if (ObjectId.isValid(resourceId)) {
+            database.getCollection(collection, (collection) -> {
                 final ObjectId id = new ObjectId(resourceId);
-                final Lock lock = readWriteLock.readLock();
 
-                lock.lock();
-                Document result = collection.find(eq("_id", id)).first();
-                lock.unlock();
+                collection.find(eq("_id", id)).first((result, findThrowable) -> {
+                    if (findThrowable != null) {
+                        listener.onDataSetInserted(null, null); //TODO return exception
+                    }
 
-                if (result != null) {
-                    TResource resource = DocumentConverter.toResource(resourceClass, result);
+                    collection.count((count, countThrowable) -> {
+                        if (countThrowable != null) {
+                            listener.onDataSetInserted(null, null); //TODO return exception
+                            return;
+                        }
 
-                    resourceSet = new ResourceSet
-                            .Builder<TResource>(collection.count())
-                            .setFilteredCount(1)
-                            .addResource(resource)
-                            .build();
-                }
-            }
-
-            return resourceSet;
-            */
-
-        }).getResult();
+                        TResource resource = DocumentConverter.toResource(resourceClass, result);
+                        listener.onDataSetInserted(new ResourceSet.Builder<TResource>(count)
+                                .setFilteredCount(1)
+                                .addResource(resource)
+                                .build(), null);
+                    });
+                });
+            });
+        } else {
+            listener.onDataSetInserted(null, null); //TODO return exception
+        }
     }
 
-    public ResourceSet get(UriInfo uriInfo, int offset, int limit) throws ConnectionException {
-        return database.getCollection(collection, (collection) -> {
-            /*
-            final Lock lock = readWriteLock.readLock();
-            MongoCursor<Document> resultSet;
-
-            lock.lock();
-
-            long count = collection.count();
-            int startIdx = limit * offset;
-
-            ResourceSet.Builder<TResource> builder =
-                    new ResourceSet.Builder<TResource>(count)
-                            .setFilteredCount(count)
-                            .setUriInfo(uriInfo)
-                            .setOffset(offset)
-                            .setLimit(limit);
-
-            if (startIdx < count) {
-                resultSet = collection.find().skip(startIdx).limit(limit).iterator();
-
-                while (resultSet.hasNext()) {
-                    builder.addResource(DocumentConverter.toResource(resourceClass, resultSet.next()));
+    public void get(final UriInfo uriInfo, final int offset, final int limit, @NotNull final OnCompletedListener listener) {
+        database.getCollection(collection, (collection) -> {
+            collection.count((count, countThrowable) -> {
+                if (countThrowable != null) {
+                    listener.onDataSetInserted(null, null); //TODO return exception
+                    return;
                 }
-            }
 
-            lock.unlock();
+                final int startIdx = limit * offset;
+                final ResourceSet.Builder<TResource> builder =
+                        new ResourceSet.Builder<TResource>(count)
+                                .setFilteredCount(count) // TODO calculate filtered count
+                                .setUriInfo(uriInfo)
+                                .setOffset(offset)
+                                .setLimit(limit);
 
-            return builder.build();
+                if (startIdx < count) {
+                    collection.find().skip(startIdx).limit(limit).forEach(document -> {
+                        builder.addResource(DocumentConverter.toResource(resourceClass, document));
+                    }, (noResult, findThrowable) -> {
+                        if (findThrowable != null) {
+                            listener.onDataSetInserted(null, null);
+                            return;
+                        }
 
-            */
-
-        }).getResult();
+                        listener.onDataSetInserted(builder.build(), null);
+                    });
+                } else {
+                    listener.onDataSetInserted(null, null); //TODO return exception -> out of index!
+                }
+            });
+        });
     }
 }
