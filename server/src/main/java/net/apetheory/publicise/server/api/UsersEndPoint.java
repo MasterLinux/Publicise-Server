@@ -5,10 +5,7 @@ import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.api.documentation.meta.Description;
 import net.apetheory.publicise.server.api.documentation.meta.Errors;
 import net.apetheory.publicise.server.api.documentation.meta.Required;
-import net.apetheory.publicise.server.api.error.ApiErrorException;
-import net.apetheory.publicise.server.api.error.DatabaseConnectionError;
-import net.apetheory.publicise.server.api.error.DatabaseInsertionError;
-import net.apetheory.publicise.server.api.error.InternalServerError;
+import net.apetheory.publicise.server.api.error.*;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
 import net.apetheory.publicise.server.api.parameter.FieldsParameter;
 import net.apetheory.publicise.server.api.parameter.PaginationParameter;
@@ -17,8 +14,10 @@ import net.apetheory.publicise.server.data.database.Database;
 import net.apetheory.publicise.server.data.database.dao.UsersDAO;
 import net.apetheory.publicise.server.data.database.exception.ConnectionException;
 import net.apetheory.publicise.server.data.database.exception.InsertionException;
+import net.apetheory.publicise.server.data.utility.UriUtils;
 import net.apetheory.publicise.server.resource.UserResource;
 import org.glassfish.jersey.server.ManagedAsync;
+import org.jetbrains.annotations.NotNull;
 
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
@@ -63,29 +62,43 @@ public class UsersEndPoint extends BaseEndPoint {
             @BeanParam PrettyPrintHeader prettyPrint,
             String body
     ) {
-        boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
-        UserResource resource = new JSONDeserializer<UserResource>()
+        final boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
+        final UserResource resource = new JSONDeserializer<UserResource>()
                 .deserialize(body, UserResource.class);
 
         try {
             UsersDAO users = new UsersDAO(Database.fromConfig());
-            users.insert(resource, (resourceSet, throwable) -> {
-                if (throwable != null) {
 
-                } else {
-                    response.resume(Response.ok()
-                            .type(MediaType.APPLICATION_JSON)
-                            .entity(resourceSet.toJson(isPrettyPrinted))
-                            .build());
+            users.insert(resource, (resourceSet, e) -> {
+                if (e != null) {
+                    response.resume(new ApiErrorException(getApiError(e), isPrettyPrinted));
+                    return;
                 }
+
+                response.resume(Response.created(UriUtils.getResourceUri(resourceSet, 0))
+                        .type(MediaType.APPLICATION_JSON)
+                        .entity(resourceSet.toJson(isPrettyPrinted))
+                        .build());
             });
-        } catch (InsertionException e) {
-            throw new ApiErrorException(new DatabaseInsertionError(), isPrettyPrinted);
-        } catch (ConnectionException e) {
-            throw new ApiErrorException(new DatabaseConnectionError(), isPrettyPrinted);
         } catch (Config.MissingNameException | Config.MissingConfigException e) {
-            throw new ApiErrorException(new InternalServerError(), isPrettyPrinted);
+            response.resume(new ApiErrorException(new InternalServerError(), isPrettyPrinted));
         }
+    }
+
+    // TODO move to utility class
+    @NotNull
+    private ApiError getApiError(Exception e) {
+        ApiError error;
+
+        if (e instanceof InsertionException) {
+            error = new DatabaseInsertionError();
+        } else if (e instanceof ConnectionException) {
+            error = new DatabaseConnectionError();
+        } else {
+            error = new InternalServerError();
+        }
+
+        return error;
     }
 
     /**

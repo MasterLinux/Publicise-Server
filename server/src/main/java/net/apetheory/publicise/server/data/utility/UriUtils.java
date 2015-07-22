@@ -1,10 +1,15 @@
 package net.apetheory.publicise.server.data.utility;
 
+import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.UriType;
+import net.apetheory.publicise.server.resource.BaseResource;
+import org.jetbrains.annotations.Nullable;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -122,5 +127,40 @@ public class UriUtils {
 
         return !isExcluded && value != null && value.size() > 0 &&
                 !StringUtils.isNullOrEmpty(value.get(0));
+    }
+
+    @Nullable
+    private static <TResource extends BaseResource> TResource getResource(@NotNull ResourceSet<TResource> resourceSet, int i) {
+        List<TResource> objects = resourceSet.getObjects();
+        TResource resource = null;
+
+        if (objects != null && objects.size() > i) {
+            resource = objects.get(i);
+        }
+
+        return resource;
+    }
+
+    /**
+     * Gets the resource URI of a specific resource containing in the given resource set
+     * @param resourceSet The resource set to query
+     * @param i The index of the resource
+     * @param <TResource> The type of the resource
+     * @return The URI or null
+     */
+    @Nullable
+    public static <TResource extends BaseResource> URI getResourceUri(@NotNull ResourceSet<TResource> resourceSet, int i) {
+        TResource resource = getResource(resourceSet, i);
+        URI uri = null;
+
+        if (resource != null) {
+            try {
+                uri = URI.create(resource.getResourceUri());
+            } catch (Exception e) {
+                uri = null;
+            }
+        }
+
+        return uri;
     }
 }

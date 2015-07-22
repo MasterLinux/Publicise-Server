@@ -46,7 +46,7 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @throws InsertionException
      * @throws ConnectionException
      */
-    public void insert(final TResource resource, @NotNull final OnDataSetInsertedListener listener) throws InsertionException, ConnectionException {
+    public void insert(final TResource resource, @NotNull final OnDataSetInsertedListener listener) {
         database.getCollection(collection, (collection) -> {
             final Document dbObj = DocumentConverter.toDocument(resource);
 

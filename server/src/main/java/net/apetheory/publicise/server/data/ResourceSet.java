@@ -34,6 +34,7 @@ public class ResourceSet<TResource extends BaseResource> {
 
     /**
      * Converts the resource set to a JSON formatted string
+     *
      * @return The resource set in its JSON representation
      */
     public String toJson() {
@@ -63,6 +64,7 @@ public class ResourceSet<TResource extends BaseResource> {
 
         /**
          * Initializes the ResourceSet builder
+         *
          * @param totalCount Number of available resources
          */
         public Builder(long totalCount) {
@@ -138,10 +140,11 @@ public class ResourceSet<TResource extends BaseResource> {
 
         /**
          * Builds the ResourceSet
+         *
          * @return The ResourceSet
          */
         public ResourceSet<TResource> build() {
-            if(uriInfo != null) {
+            if (uriInfo != null) {
                 setPrev(meta, uriInfo);
                 setNext(meta, uriInfo);
             }
@@ -165,7 +168,7 @@ public class ResourceSet<TResource extends BaseResource> {
          */
         private void setNext(Meta meta, UriInfo uriInfo) {
             long rest = meta.getTotalCount() - meta.getLimit() * (meta.getOffset() + 1);
-            if(rest > 0) {
+            if (rest > 0) {
                 meta.setNext(UriUtils.buildUriPath(UriType.Next, uriInfo));
             }
         }

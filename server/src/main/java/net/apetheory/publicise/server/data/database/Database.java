@@ -8,7 +8,6 @@ import com.mongodb.async.client.MongoCollection;
 import com.mongodb.connection.ClusterSettings;
 import net.apetheory.publicise.server.Config;
 import net.apetheory.publicise.server.data.ResourceSet;
-import net.apetheory.publicise.server.data.database.exception.ConnectionException;
 import net.apetheory.publicise.server.data.database.listener.OnConnectionEstablishedListener;
 import org.bson.Document;
 
@@ -92,16 +91,13 @@ public class Database {
      * @param establishedListener Listener used to listen for connection state changes
      * @return The current database instance
      */
-    public Database getCollection(String collection, OnConnectionEstablishedListener establishedListener) throws ConnectionException {
-        try {
+    public Database getCollection(String collection, OnConnectionEstablishedListener establishedListener) {
+
             if (establishedListener != null) {
                 MongoCollection<Document> mongoCollection = client.getDatabase(name).getCollection(collection);
                 establishedListener.onEstablished(mongoCollection);
             }
 
-        } catch (Exception e) {
-            throw new ConnectionException(e);
-        }
 
         return this;
     }

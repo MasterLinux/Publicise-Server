@@ -1,7 +1,6 @@
 package net.apetheory.publicise.server.data.database.listener;
 
 import com.mongodb.async.client.MongoCollection;
-import net.apetheory.publicise.server.data.database.exception.InsertionException;
 import org.bson.Document;
 
 /**
@@ -16,5 +15,5 @@ public interface OnConnectionEstablishedListener {
      *
      * @param collection The collection to manipulate
      */
-    void onEstablished(MongoCollection<Document> collection) throws InsertionException;
+    void onEstablished(MongoCollection<Document> collection);
 }
