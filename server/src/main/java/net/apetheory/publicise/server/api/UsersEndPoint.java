@@ -8,6 +8,7 @@ import net.apetheory.publicise.server.api.documentation.meta.Required;
 import net.apetheory.publicise.server.api.error.ApiErrorException;
 import net.apetheory.publicise.server.api.error.DatabaseConnectionError;
 import net.apetheory.publicise.server.api.error.InternalServerError;
+import net.apetheory.publicise.server.api.error.ResourceNotFoundError;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
 import net.apetheory.publicise.server.api.parameter.FieldsParameter;
 import net.apetheory.publicise.server.api.parameter.PaginationParameter;
@@ -94,7 +95,7 @@ public class UsersEndPoint extends BaseEndPoint {
     @GET
     @Path("/{id: [0-9a-zA-Z]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Errors({DatabaseConnectionError.class})
+    @Errors({DatabaseConnectionError.class, ResourceNotFoundError.class})
     @Description("Gets a specific user by its ID")
     @ManagedAsync
     public void getUserById(
@@ -164,6 +165,7 @@ public class UsersEndPoint extends BaseEndPoint {
 
     @DELETE
     @Path("/{id: [0-9a-zA-Z]+}")
+    @Errors({DatabaseConnectionError.class, ResourceNotFoundError.class})
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Deletes a specific user by its ID")
     @ManagedAsync
