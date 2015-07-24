@@ -6,6 +6,6 @@ package net.apetheory.publicise.server.data.database.exception;
 public class QueryException extends Exception {
 
     public QueryException(Throwable t) {
-        super("Unable to get requested data records", t);
+        super("Unable to get requested resource", t);
     }
 }

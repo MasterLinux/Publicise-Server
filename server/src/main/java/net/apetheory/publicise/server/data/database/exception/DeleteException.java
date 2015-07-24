@@ -6,6 +6,6 @@ package net.apetheory.publicise.server.data.database.exception;
 public class DeleteException extends Exception {
 
     public DeleteException(Throwable t) {
-        super("Unable to delete data record", t);
+        super("Unable to delete resource", t);
     }
 }

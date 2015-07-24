@@ -7,8 +7,8 @@ package net.apetheory.publicise.server.api.error;
  */
 public class DatabaseInsertionError extends DatabaseError {
 
-    public static final String ERROR_MESSAGE = "Unable to insert new data record";
-    public static final String ERROR_NAME = "ERROR_DB_INSERTION_FAILED";
+    public static final String ERROR_MESSAGE = "Unable to insert new resource";
+    public static final String ERROR_NAME = "DB_INSERTION_FAILED_ERROR";
 
     @Override
     public String getErrorMessage() {

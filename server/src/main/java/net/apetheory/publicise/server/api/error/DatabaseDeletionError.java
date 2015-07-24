@@ -1,14 +1,12 @@
 package net.apetheory.publicise.server.api.error;
 
 /**
- * Represents an internal server error which
- * is used whenever the querying of a
- * data record failed
+ *
  */
-public class DatabaseQueryingError extends DatabaseError {
+public class DatabaseDeletionError extends DatabaseError {
 
-    public static final String ERROR_MESSAGE = "Unable to get resource";
-    public static final String ERROR_NAME = "DB_QUERYING_FAILED_ERROR";
+    public static final String ERROR_MESSAGE = "Unable to delete resource";
+    public static final String ERROR_NAME = "DB_DELETION_FAILED_ERROR";
 
     @Override
     public String getErrorMessage() {
@@ -22,7 +20,7 @@ public class DatabaseQueryingError extends DatabaseError {
 
     @Override
     public int getErrorCode() {
-        return 0xCC02;
+        return 0xCC01;
     }
 
     @Override

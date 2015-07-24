@@ -6,7 +6,7 @@ package net.apetheory.publicise.server.data.database.exception;
 public class InvalidIdException extends Exception {
 
     public InvalidIdException(String id) {
-        super("ID " + id + " is invalid");
+        super("Given ID <" + id + "> is invalid");
     }
 
 }

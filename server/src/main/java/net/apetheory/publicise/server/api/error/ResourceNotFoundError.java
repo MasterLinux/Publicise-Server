@@ -1,27 +1,27 @@
 package net.apetheory.publicise.server.api.error;
 
 /**
- * Created by Christoph on 03.05.2015.
+ * Created by Christoph on 13.06.2015.
  */
-public class ResourceUnavailableError extends ApiError {
+public class ResourceNotFoundError extends ApiError {
 
     @Override
     public String getErrorMessage() {
-        return "The requested resource is currently unavailable";
+        return "Resource not found";
     }
 
     @Override
     public int getStatusCode() {
-        return 500;
+        return 404;
     }
 
     @Override
     public int getErrorCode() {
-        return 0x2200;
+        return 0x0300;
     }
 
     @Override
     public String getErrorName() {
-        return "RESOURCE_UNAVAILABLE_ERROR";
+        return "RESOURCE_NOT_FOUND_ERROR";
     }
 }

@@ -6,7 +6,7 @@ package net.apetheory.publicise.server.api.error;
 public class DatabaseConnectionError extends DatabaseError { //TODO move to api namespace
 
     public static final String ERROR_MESSAGE = "Connection to database could not be established";
-    public static final String ERROR_NAME = "ERROR_DB_CONNECTION_FAILED";
+    public static final String ERROR_NAME = "DB_CONNECTION_FAILED_ERROR";
 
     @Override
     public String getErrorMessage() {

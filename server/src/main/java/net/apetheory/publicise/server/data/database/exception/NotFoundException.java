@@ -5,6 +5,6 @@ package net.apetheory.publicise.server.data.database.exception;
  */
 public class NotFoundException extends Exception {
     public NotFoundException(String id) {
-        super("Resource with ID " + id + " not found");
+        super("Resource with ID <" + id + "> not found");
     }
 }

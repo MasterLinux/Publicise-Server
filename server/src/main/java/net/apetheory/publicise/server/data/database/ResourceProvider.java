@@ -21,8 +21,17 @@ public class ResourceProvider<TResource extends BaseResource> {
     private final String collection;
     private final Database database;
 
-    public interface OnCompletedListener {
-        void onCompleted(@Nullable ResourceSet resourceSet, @Nullable Exception exception);
+    /**
+     * Interface for listener which is invoked whenever a database transaction is completed
+     */
+    public interface OnTransactionCompletedListener {
+
+        /**
+         * Callback method which is called whenever the transaction completes
+         * @param resourceSet The resource set or null on error
+         * @param exception Null on success or the specific exception which occurred while requesting
+         */
+        void onTransactionCompleted(@Nullable ResourceSet resourceSet, @Nullable Exception exception);
     }
 
     /**
@@ -45,24 +54,24 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @throws InsertionException
      * @throws ConnectionException
      */
-    public void insert(final TResource resource, @NotNull final OnCompletedListener listener) {
+    public void insert(final TResource resource, @NotNull final OnTransactionCompletedListener listener) {
         database.getCollection(collection, (collection) -> {
             final Document dbObj = DocumentConverter.toDocument(resource);
 
             collection.insertOne(dbObj, (noResult, insertionThrowable) -> {
                 if (insertionThrowable != null) {
-                    listener.onCompleted(null, new InsertionException(insertionThrowable));
+                    listener.onTransactionCompleted(null, new InsertionException(insertionThrowable));
                     return;
                 }
 
                 collection.count((count, countThrowable) -> {
                     if (countThrowable != null) {
-                        listener.onCompleted(null, new InsertionException(countThrowable));
+                        listener.onTransactionCompleted(null, new InsertionException(countThrowable));
                         return;
                     }
 
                     resource.setId(dbObj.getObjectId("_id").toString());
-                    listener.onCompleted(new ResourceSet.Builder<TResource>(count)
+                    listener.onTransactionCompleted(new ResourceSet.Builder<TResource>(count)
                             .addResource(resource)
                             .setFilteredCount(1)
                             .build(), null);
@@ -77,7 +86,7 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @param resourceId The ID of the resource to delete
      * @param listener   Callback which is executed whenever the transaction completes
      */
-    public void deleteById(final String resourceId, @NotNull final OnCompletedListener listener) {
+    public void deleteById(final String resourceId, @NotNull final OnTransactionCompletedListener listener) {
         if (ObjectId.isValid(resourceId)) {
             database.getCollection(collection, (collection) -> {
                 final ObjectId id = new ObjectId(resourceId);
@@ -85,7 +94,7 @@ public class ResourceProvider<TResource extends BaseResource> {
                 // get resource first
                 collection.find(eq("_id", id)).first((findResult, findThrowable) -> {
                     if (findThrowable != null) {
-                        listener.onCompleted(null, new DeleteException(findThrowable));
+                        listener.onTransactionCompleted(null, new DeleteException(findThrowable));
                         return;
                     }
 
@@ -93,7 +102,7 @@ public class ResourceProvider<TResource extends BaseResource> {
                     if (findResult.size() > 0) {
                         collection.deleteOne(eq("_id", id), (result, deleteThrowable) -> {
                             if (deleteThrowable != null) {
-                                listener.onCompleted(null, new DeleteException(deleteThrowable));
+                                listener.onTransactionCompleted(null, new DeleteException(deleteThrowable));
                                 return;
                             }
 
@@ -101,27 +110,27 @@ public class ResourceProvider<TResource extends BaseResource> {
                             if (result.getDeletedCount() > 0) {
                                 collection.count((count, countThrowable) -> {
                                     if (countThrowable != null) {
-                                        listener.onCompleted(null, new DeleteException(countThrowable));
+                                        listener.onTransactionCompleted(null, new DeleteException(countThrowable));
                                         return;
                                     }
 
                                     TResource resource = DocumentConverter.toResource(resourceClass, findResult);
-                                    listener.onCompleted(new ResourceSet.Builder<TResource>(count)
+                                    listener.onTransactionCompleted(new ResourceSet.Builder<TResource>(count)
                                             .setFilteredCount(1)
                                             .addResource(resource)
                                             .build(), null);
                                 });
                             } else {
-                                listener.onCompleted(null, new DeleteException(null)); //TODO throw specific exception
+                                listener.onTransactionCompleted(null, new DeleteException(null)); //TODO throw specific exception
                             }
                         });
                     } else {
-                        listener.onCompleted(null, new NotFoundException(resourceId));
+                        listener.onTransactionCompleted(null, new NotFoundException(resourceId));
                     }
                 });
             });
         } else {
-            listener.onCompleted(null, new InvalidIdException(resourceId));
+            listener.onTransactionCompleted(null, new InvalidIdException(resourceId));
         }
     }
 
@@ -132,25 +141,25 @@ public class ResourceProvider<TResource extends BaseResource> {
      * @return The requested resource or null
      * @throws ConnectionException
      */
-    public void getById(final String resourceId, @NotNull final OnCompletedListener listener) {
+    public void getById(final String resourceId, @NotNull final OnTransactionCompletedListener listener) {
         if (ObjectId.isValid(resourceId)) {
             database.getCollection(collection, (collection) -> {
                 final ObjectId id = new ObjectId(resourceId);
 
                 collection.find(eq("_id", id)).first((result, findThrowable) -> {
                     if (findThrowable != null) {
-                        listener.onCompleted(null, new QueryException(findThrowable));
+                        listener.onTransactionCompleted(null, new QueryException(findThrowable));
                         return;
                     }
 
                     collection.count((count, countThrowable) -> {
                         if (countThrowable != null) {
-                            listener.onCompleted(null, new QueryException(countThrowable));
+                            listener.onTransactionCompleted(null, new QueryException(countThrowable));
                             return;
                         }
 
                         TResource resource = DocumentConverter.toResource(resourceClass, result);
-                        listener.onCompleted(new ResourceSet.Builder<TResource>(count)
+                        listener.onTransactionCompleted(new ResourceSet.Builder<TResource>(count)
                                 .setFilteredCount(1)
                                 .addResource(resource)
                                 .build(), null);
@@ -158,15 +167,15 @@ public class ResourceProvider<TResource extends BaseResource> {
                 });
             });
         } else {
-            listener.onCompleted(null, new InvalidIdException(resourceId));
+            listener.onTransactionCompleted(null, new InvalidIdException(resourceId));
         }
     }
 
-    public void get(final UriInfo uriInfo, final int offset, final int limit, @NotNull final OnCompletedListener listener) {
+    public void get(final UriInfo uriInfo, final int offset, final int limit, @NotNull final OnTransactionCompletedListener listener) {
         database.getCollection(collection, (collection) -> {
             collection.count((count, countThrowable) -> {
                 if (countThrowable != null) {
-                    listener.onCompleted(null, new QueryException(countThrowable));
+                    listener.onTransactionCompleted(null, new QueryException(countThrowable));
                     return;
                 }
 
@@ -183,14 +192,14 @@ public class ResourceProvider<TResource extends BaseResource> {
                         builder.addResource(DocumentConverter.toResource(resourceClass, document));
                     }, (noResult, findThrowable) -> {
                         if (findThrowable != null) {
-                            listener.onCompleted(null, new QueryException(findThrowable));
+                            listener.onTransactionCompleted(null, new QueryException(findThrowable));
                             return;
                         }
 
-                        listener.onCompleted(builder.build(), null);
+                        listener.onTransactionCompleted(builder.build(), null);
                     });
                 } else {
-                    listener.onCompleted(builder.build(), null);
+                    listener.onTransactionCompleted(builder.build(), null);
                 }
             });
         });

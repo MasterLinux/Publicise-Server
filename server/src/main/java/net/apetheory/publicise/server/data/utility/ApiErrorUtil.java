@@ -23,13 +23,13 @@ public class ApiErrorUtil {
             error = new DatabaseQueryingError();
 
         } else if (e instanceof NotFoundException) {
-            error = new DatabaseQueryingError(); //TODO
+            error = new ResourceNotFoundError();
 
         } else if (e instanceof InvalidIdException) {
-            error = new DatabaseQueryingError(); //TODO
+            error = new ResourceNotFoundError();
 
         } else if (e instanceof DeleteException) {
-            error = new DatabaseQueryingError();  //TODO
+            error = new DatabaseDeletionError();
 
         } else {
             error = new InternalServerError();

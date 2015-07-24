@@ -22,6 +22,6 @@ public class InternalServerError extends ApiError {
 
     @Override
     public String getErrorName() {
-        return "ERROR_INTERNAL_SERVER_ERROR";
+        return "INTERNAL_SERVER_ERROR";
     }
 }
