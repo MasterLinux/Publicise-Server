@@ -2,9 +2,7 @@ package net.apetheory.publicise.server.data.database;
 
 import net.apetheory.publicise.server.data.ResourceSet;
 import net.apetheory.publicise.server.data.converter.DocumentConverter;
-import net.apetheory.publicise.server.data.database.exception.ConnectionException;
-import net.apetheory.publicise.server.data.database.exception.InsertionException;
-import net.apetheory.publicise.server.data.database.exception.QueryException;
+import net.apetheory.publicise.server.data.database.exception.*;
 import net.apetheory.publicise.server.resource.BaseResource;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -74,6 +72,60 @@ public class ResourceProvider<TResource extends BaseResource> {
     }
 
     /**
+     * Deletes a specific resource by its ID
+     *
+     * @param resourceId The ID of the resource to delete
+     * @param listener   Callback which is executed whenever the transaction completes
+     */
+    public void deleteById(final String resourceId, @NotNull final OnCompletedListener listener) {
+        if (ObjectId.isValid(resourceId)) {
+            database.getCollection(collection, (collection) -> {
+                final ObjectId id = new ObjectId(resourceId);
+
+                // get resource first
+                collection.find(eq("_id", id)).first((findResult, findThrowable) -> {
+                    if (findThrowable != null) {
+                        listener.onCompleted(null, new DeleteException(findThrowable));
+                        return;
+                    }
+
+                    // if found delete from database
+                    if (findResult.size() > 0) {
+                        collection.deleteOne(eq("_id", id), (result, deleteThrowable) -> {
+                            if (deleteThrowable != null) {
+                                listener.onCompleted(null, new DeleteException(deleteThrowable));
+                                return;
+                            }
+
+                            // get count if deleted
+                            if (result.getDeletedCount() > 0) {
+                                collection.count((count, countThrowable) -> {
+                                    if (countThrowable != null) {
+                                        listener.onCompleted(null, new DeleteException(countThrowable));
+                                        return;
+                                    }
+
+                                    TResource resource = DocumentConverter.toResource(resourceClass, findResult);
+                                    listener.onCompleted(new ResourceSet.Builder<TResource>(count)
+                                            .setFilteredCount(1)
+                                            .addResource(resource)
+                                            .build(), null);
+                                });
+                            } else {
+                                listener.onCompleted(null, new DeleteException(null)); //TODO throw specific exception
+                            }
+                        });
+                    } else {
+                        listener.onCompleted(null, new NotFoundException(resourceId));
+                    }
+                });
+            });
+        } else {
+            listener.onCompleted(null, new InvalidIdException(resourceId));
+        }
+    }
+
+    /**
      * Gets a specific resource by its ID
      *
      * @param resourceId The ID of the resource to get
@@ -88,6 +140,7 @@ public class ResourceProvider<TResource extends BaseResource> {
                 collection.find(eq("_id", id)).first((result, findThrowable) -> {
                     if (findThrowable != null) {
                         listener.onCompleted(null, new QueryException(findThrowable));
+                        return;
                     }
 
                     collection.count((count, countThrowable) -> {
@@ -105,7 +158,7 @@ public class ResourceProvider<TResource extends BaseResource> {
                 });
             });
         } else {
-            listener.onCompleted(null, new QueryException(null)); //TODO create specific exception for invalid IDs?
+            listener.onCompleted(null, new InvalidIdException(resourceId));
         }
     }
 

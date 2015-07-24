@@ -79,6 +79,7 @@ public class UsersEndPoint extends BaseEndPoint {
                         .entity(resourceSet.toJson(isPrettyPrinted))
                         .build());
             });
+
         } catch (Config.MissingNameException | Config.MissingConfigException e) {
             response.resume(new ApiErrorException(new InternalServerError(), isPrettyPrinted));
         }
@@ -117,6 +118,7 @@ public class UsersEndPoint extends BaseEndPoint {
                         .entity(resourceSet.toJson(isPrettyPrinted))
                         .build());
             });
+
         } catch (Config.MissingNameException | Config.MissingConfigException e) {
             response.resume(new ApiErrorException(new InternalServerError(), isPrettyPrinted));
         }
@@ -131,7 +133,7 @@ public class UsersEndPoint extends BaseEndPoint {
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Gets all registered users")
     @ManagedAsync
-    public void getDocuments(
+    public void getUsers(
             @Suspended AsyncResponse response,
             @BeanParam PrettyPrintHeader prettyPrint,
             @BeanParam PaginationParameter pagination,
@@ -154,8 +156,41 @@ public class UsersEndPoint extends BaseEndPoint {
                         .entity(resourceSet.toJson(isPrettyPrinted))
                         .build());
             });
+
         } catch (Config.MissingNameException | Config.MissingConfigException e) {
-            throw new ApiErrorException(new InternalServerError(), isPrettyPrinted);
+            response.resume(new ApiErrorException(new InternalServerError(), isPrettyPrinted));
+        }
+    }
+
+    @DELETE
+    @Path("/{id: [0-9a-zA-Z]+}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Description("Deletes a specific user by its ID")
+    @ManagedAsync
+    public void deleteUserById(
+            @Suspended AsyncResponse response,
+            @BeanParam PrettyPrintHeader prettyPrint,
+            @Required @PathParam("id") @Description("The ID of the user to remove") String id
+    ) {
+        final boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
+
+        try {
+            UsersDAO users = new UsersDAO(Database.fromConfig());
+
+            users.deleteById(id, (resourceSet, exception) -> {
+                if (exception != null) {
+                    response.resume(new ApiErrorException(ApiErrorUtil.getApiError(exception), isPrettyPrinted));
+                    return;
+                }
+
+                response.resume(Response.ok()
+                        .type(MediaType.APPLICATION_JSON)
+                        .entity(resourceSet.toJson(isPrettyPrinted))
+                        .build());
+            });
+
+        } catch (Config.MissingNameException | Config.MissingConfigException e) {
+            response.resume(new ApiErrorException(new InternalServerError(), isPrettyPrinted));
         }
     }
 }

@@ -1,9 +1,7 @@
 package net.apetheory.publicise.server.data.utility;
 
 import net.apetheory.publicise.server.api.error.*;
-import net.apetheory.publicise.server.data.database.exception.ConnectionException;
-import net.apetheory.publicise.server.data.database.exception.InsertionException;
-import net.apetheory.publicise.server.data.database.exception.QueryException;
+import net.apetheory.publicise.server.data.database.exception.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,10 +15,22 @@ public class ApiErrorUtil {
 
         if (e instanceof InsertionException) {
             error = new DatabaseInsertionError();
+
         } else if (e instanceof ConnectionException) {
             error = new DatabaseConnectionError();
-        } else if(e instanceof QueryException) {
+
+        } else if (e instanceof QueryException) {
             error = new DatabaseQueryingError();
+
+        } else if (e instanceof NotFoundException) {
+            error = new DatabaseQueryingError(); //TODO
+
+        } else if (e instanceof InvalidIdException) {
+            error = new DatabaseQueryingError(); //TODO
+
+        } else if (e instanceof DeleteException) {
+            error = new DatabaseQueryingError();  //TODO
+
         } else {
             error = new InternalServerError();
         }
