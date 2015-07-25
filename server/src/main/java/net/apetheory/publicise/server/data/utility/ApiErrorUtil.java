@@ -31,6 +31,9 @@ public class ApiErrorUtil {
         } else if (e instanceof DeleteException) {
             error = new DatabaseDeletionError();
 
+        } else if (e instanceof UpdateException) {
+            error = new DatabaseUpdateError();
+
         } else {
             error = new InternalServerError();
         }

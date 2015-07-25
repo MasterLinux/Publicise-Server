@@ -6,7 +6,6 @@ import net.apetheory.publicise.server.api.documentation.meta.Description;
 import net.apetheory.publicise.server.api.documentation.meta.Errors;
 import net.apetheory.publicise.server.api.documentation.meta.Required;
 import net.apetheory.publicise.server.api.error.ApiErrorException;
-import net.apetheory.publicise.server.api.error.DatabaseConnectionError;
 import net.apetheory.publicise.server.api.error.InternalServerError;
 import net.apetheory.publicise.server.api.error.ResourceNotFoundError;
 import net.apetheory.publicise.server.api.header.PrettyPrintHeader;
@@ -95,7 +94,7 @@ public class UsersEndPoint extends BaseEndPoint {
     @GET
     @Path("/{id: [0-9a-zA-Z]+}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Errors({DatabaseConnectionError.class, ResourceNotFoundError.class})
+    @Errors({ResourceNotFoundError.class})
     @Description("Gets a specific user by its ID")
     @ManagedAsync
     public void getUserById(
@@ -165,7 +164,7 @@ public class UsersEndPoint extends BaseEndPoint {
 
     @DELETE
     @Path("/{id: [0-9a-zA-Z]+}")
-    @Errors({DatabaseConnectionError.class, ResourceNotFoundError.class})
+    @Errors({ResourceNotFoundError.class})
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Deletes a specific user by its ID")
     @ManagedAsync
@@ -180,6 +179,42 @@ public class UsersEndPoint extends BaseEndPoint {
             UsersDAO users = new UsersDAO(Database.fromConfig());
 
             users.deleteById(id, (resourceSet, exception) -> {
+                if (exception != null) {
+                    response.resume(new ApiErrorException(ApiErrorUtil.getApiError(exception), isPrettyPrinted));
+                    return;
+                }
+
+                response.resume(Response.ok()
+                        .type(MediaType.APPLICATION_JSON)
+                        .entity(resourceSet.toJson(isPrettyPrinted))
+                        .build());
+            });
+
+        } catch (Config.MissingNameException | Config.MissingConfigException e) {
+            response.resume(new ApiErrorException(new InternalServerError(), isPrettyPrinted));
+        }
+    }
+
+    @PUT
+    @Path("/{id: [0-9a-zA-Z]+}")
+    @Errors({ResourceNotFoundError.class})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Description("Updates a specific user by its ID")
+    @ManagedAsync
+    public void updateUserById(
+            @Suspended AsyncResponse response,
+            @BeanParam PrettyPrintHeader prettyPrint,
+            @Required @PathParam("id") @Description("The ID of the user to remove") String id,
+            String body
+    ) {
+        final boolean isPrettyPrinted = prettyPrint.isPrettyPrinted();
+        final UserResource resource = new JSONDeserializer<UserResource>()
+                .deserialize(body, UserResource.class);
+
+        try {
+            UsersDAO users = new UsersDAO(Database.fromConfig());
+
+            users.updateById(id, resource, (resourceSet, exception) -> {
                 if (exception != null) {
                     response.resume(new ApiErrorException(ApiErrorUtil.getApiError(exception), isPrettyPrinted));
                     return;

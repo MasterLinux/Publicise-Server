@@ -204,4 +204,42 @@ public class ResourceProvider<TResource extends BaseResource> {
             });
         });
     }
+
+    public void updateById(final String resourceId, final TResource resource, @NotNull final OnTransactionCompletedListener listener) {
+        if (ObjectId.isValid(resourceId)) {
+            database.getCollection(collection, (collection) -> {
+                final Document dbObj = DocumentConverter.toDocument(resource);
+                final ObjectId id = new ObjectId(resourceId);
+
+                collection.updateOne(eq("_id", id), new Document("$set", dbObj), (updateResult, updateThrowable) -> {
+                    if (updateThrowable != null) {
+                        listener.onTransactionCompleted(null, new UpdateException(updateThrowable));
+                        return;
+                    }
+
+                    collection.find(eq("_id", id)).first((result, findThrowable) -> {
+                        if (findThrowable != null) {
+                            listener.onTransactionCompleted(null, new UpdateException(findThrowable));
+                            return;
+                        }
+
+                        collection.count((count, countThrowable) -> {
+                            if (countThrowable != null) {
+                                listener.onTransactionCompleted(null, new UpdateException(countThrowable));
+                                return;
+                            }
+
+                            TResource updatedResource = DocumentConverter.toResource(resourceClass, result);
+                            listener.onTransactionCompleted(new ResourceSet.Builder<TResource>(count)
+                                    .setFilteredCount(1)
+                                    .addResource(updatedResource)
+                                    .build(), null);
+                        });
+                    });
+                });
+            });
+        } else {
+            listener.onTransactionCompleted(null, new InvalidIdException(resourceId));
+        }
+    }
 }
