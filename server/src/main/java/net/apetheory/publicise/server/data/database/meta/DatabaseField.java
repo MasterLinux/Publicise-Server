@@ -8,4 +8,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DatabaseField {
+    Visibility visibility() default Visibility.VISIBLE;
+
+    boolean isFinal() default false;
+
+    boolean isRequired() default true;
 }

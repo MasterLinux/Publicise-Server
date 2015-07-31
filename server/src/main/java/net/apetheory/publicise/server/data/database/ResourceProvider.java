@@ -56,25 +56,30 @@ public class ResourceProvider<TResource extends BaseResource> {
      */
     public void insert(final TResource resource, @NotNull final OnTransactionCompletedListener listener) {
         database.getCollection(collection, (collection) -> {
-            final Document dbObj = DocumentConverter.toDocument(resource);
-
-            collection.insertOne(dbObj, (noResult, insertionThrowable) -> {
-                if (insertionThrowable != null) {
-                    listener.onTransactionCompleted(null, new InsertionException(insertionThrowable));
+            DocumentConverter.toDocument(resource, (document, exception) -> {
+                if (exception != null) {
+                    listener.onTransactionCompleted(null, new InsertionException(exception));
                     return;
                 }
 
-                collection.count((count, countThrowable) -> {
-                    if (countThrowable != null) {
-                        listener.onTransactionCompleted(null, new InsertionException(countThrowable));
+                collection.insertOne(document, (noResult, insertionThrowable) -> {
+                    if (insertionThrowable != null) {
+                        listener.onTransactionCompleted(null, new InsertionException(insertionThrowable));
                         return;
                     }
 
-                    resource.setId(dbObj.getObjectId("_id").toString());
-                    listener.onTransactionCompleted(new ResourceSet.Builder<TResource>(count)
-                            .addResource(resource)
-                            .setFilteredCount(1)
-                            .build(), null);
+                    collection.count((count, countThrowable) -> {
+                        if (countThrowable != null) {
+                            listener.onTransactionCompleted(null, new InsertionException(countThrowable));
+                            return;
+                        }
+
+                        resource.setId(document.getObjectId("_id").toString());
+                        listener.onTransactionCompleted(new ResourceSet.Builder<TResource>(count)
+                                .addResource(resource)
+                                .setFilteredCount(1)
+                                .build(), null);
+                    });
                 });
             });
         });
@@ -208,32 +213,38 @@ public class ResourceProvider<TResource extends BaseResource> {
     public void updateById(final String resourceId, final TResource resource, @NotNull final OnTransactionCompletedListener listener) {
         if (ObjectId.isValid(resourceId)) {
             database.getCollection(collection, (collection) -> {
-                final Document dbObj = DocumentConverter.toDocument(resource);
                 final ObjectId id = new ObjectId(resourceId);
 
-                collection.updateOne(eq("_id", id), new Document("$set", dbObj), (updateResult, updateThrowable) -> {
-                    if (updateThrowable != null) {
-                        listener.onTransactionCompleted(null, new UpdateException(updateThrowable));
+                DocumentConverter.toDocument(resource, DocumentConverter.Mode.UPDATE, (document, exception) -> {
+                    if (exception != null) {
+                        listener.onTransactionCompleted(null, new UpdateException(exception));
                         return;
                     }
 
-                    collection.find(eq("_id", id)).first((result, findThrowable) -> {
-                        if (findThrowable != null) {
-                            listener.onTransactionCompleted(null, new UpdateException(findThrowable));
+                    collection.updateOne(eq("_id", id), new Document("$set", document), (updateResult, updateThrowable) -> {
+                        if (updateThrowable != null) {
+                            listener.onTransactionCompleted(null, new UpdateException(updateThrowable));
                             return;
                         }
 
-                        collection.count((count, countThrowable) -> {
-                            if (countThrowable != null) {
-                                listener.onTransactionCompleted(null, new UpdateException(countThrowable));
+                        collection.find(eq("_id", id)).first((result, findThrowable) -> {
+                            if (findThrowable != null) {
+                                listener.onTransactionCompleted(null, new UpdateException(findThrowable));
                                 return;
                             }
 
-                            TResource updatedResource = DocumentConverter.toResource(resourceClass, result);
-                            listener.onTransactionCompleted(new ResourceSet.Builder<TResource>(count)
-                                    .setFilteredCount(1)
-                                    .addResource(updatedResource)
-                                    .build(), null);
+                            collection.count((count, countThrowable) -> {
+                                if (countThrowable != null) {
+                                    listener.onTransactionCompleted(null, new UpdateException(countThrowable));
+                                    return;
+                                }
+
+                                TResource updatedResource = DocumentConverter.toResource(resourceClass, result);
+                                listener.onTransactionCompleted(new ResourceSet.Builder<TResource>(count)
+                                        .setFilteredCount(1)
+                                        .addResource(updatedResource)
+                                        .build(), null);
+                            });
                         });
                     });
                 });
